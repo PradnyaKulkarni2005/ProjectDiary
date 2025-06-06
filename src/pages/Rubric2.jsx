@@ -57,7 +57,7 @@ export default function Rubric2() {
         <table className="rubric-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>Sr.no</th>
               <th>Criteria</th>
               <th>Excellent</th>
               <th>Good</th>
