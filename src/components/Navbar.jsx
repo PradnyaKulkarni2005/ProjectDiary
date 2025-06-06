@@ -78,6 +78,8 @@
 // src/components/Navbar.jsx
 import React, { useState } from 'react';
 import './Navbar.css';
+import { Link } from 'react-router-dom';
+
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -125,12 +127,12 @@ function Navbar() {
           <div className="dropdown">
             <button className="dropbtn">Rubrics ▾</button>
             <div className="dropdown-content">
-              <a href="#">Rubrics 1</a>
-              <a href="#">Rubrics 2</a>
-              <a href="#">Rubrics 3</a>
-              <a href="#">Rubrics 4</a>
-              <a href="#">Rubrics 5</a>
-              <a href="#">Rubrics 6</a>
+              <Link to="/rubrics1">Rubrics 1</Link>
+              <Link to="/rubrics2">Rubrics 2</Link>
+              <Link to="/rubrics1">Rubrics 3</Link>
+              <Link to="/rubrics1">Rubrics 4</Link>
+              <Link to="/rubrics1">Rubrics 5</Link>
+              <Link to="/rubrics1">Rubrics 6</Link>
             </div>
           </div>
 

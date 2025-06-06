@@ -1,0 +1,50 @@
+.rubric-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.rubric-container h1 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.rubric-container p {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.rubric-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.rubric-table th,
+.rubric-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.rubric-table th {
+  background: linear-gradient(to right, #003366, #0055aa);
+  color: white;
+  text-align: center;
+
+}
+
+.rubric-table tr:hover {
+  background-color: #f9f9f9;
+}
