@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
-import './HomePage.css';
+import './Home.css';
 import bestproject1 from '../assets/bestproject1.jpeg';
 import bestproject2 from '../assets/bestproject2.jpeg';
 import bestproject3 from '../assets/bestproject3.jpeg';
