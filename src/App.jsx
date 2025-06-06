@@ -8,6 +8,7 @@ import Rubric3 from './pages/Rubric3';
 import Rubric4 from './pages/Rubric4';
 import COProjectTable from './pages/COProjectTable';
 import POPage from './pages/POPage';
+import PSOPage from './pages/PSOPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/rubrics4" element={<Rubric4 />} />
         <Route path="/mechanical" element={<COProjectTable />} />
         <Route path="/po" element={<POPage />} />
+        <Route path="/pso" element={<PSOPage />} />
 
         
         

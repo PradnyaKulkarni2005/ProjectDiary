@@ -122,6 +122,7 @@ function Navbar() {
               <Link to="/mechanical">Mechanical</Link>
               <a href="#">AIML</a>
               <a href="#">CS Regional</a>
+              <Link to="/pso">Programme Specific Outcomes (PSO)</Link>
             </div>
           </div>
 
