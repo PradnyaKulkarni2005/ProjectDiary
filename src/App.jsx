@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import Rubric2 from './pages/Rubric2';
 import Rubric3 from './pages/Rubric3';
 import Rubric4 from './pages/Rubric4';
+import COProjectTable from './pages/COProjectTable';
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         <Route path="/rubrics2" element={<Rubric2 />} />
         <Route path="/rubrics3" element={<Rubric3 />} />
         <Route path="/rubrics4" element={<Rubric4 />} />
+        <Route path="/mechanical" element={<COProjectTable />} />
+
         
         
       </Routes>

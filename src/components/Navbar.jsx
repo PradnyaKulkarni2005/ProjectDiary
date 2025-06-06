@@ -118,7 +118,7 @@ function Navbar() {
               <a href="#">Computer Science</a>
               <a href="#">Information Technology</a>
               <a href="#">Civil</a>
-              <a href="#">Mechanical</a>
+              <Link to="/mechanical">Mechanical</Link>
               <a href="#">AIML</a>
               <a href="#">CS Regional</a>
             </div>
