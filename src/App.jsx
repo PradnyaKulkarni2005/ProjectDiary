@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import Rubric2 from './pages/Rubric2';
-
+import COProjectTable from './pages/COProjectTable';
 function App() {
   return (
     <>
@@ -14,7 +14,7 @@ function App() {
         <Route path="/login/*" element={<LoginPage />} />
         <Route path="/rubrics1" element={<Rubric1 />} />
         <Route path="/rubrics2" element={<Rubric2 />} />
-        
+        <Route path="/mechanical" element={<COProjectTable />} />
       </Routes>
     </>
   );
