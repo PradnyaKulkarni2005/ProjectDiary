@@ -129,8 +129,8 @@ function Navbar() {
             <div className="dropdown-content">
               <Link to="/rubrics1">Rubrics 1</Link>
               <Link to="/rubrics2">Rubrics 2</Link>
-              <Link to="/rubrics1">Rubrics 3</Link>
-              <Link to="/rubrics1">Rubrics 4</Link>
+              <Link to="/rubrics3">Rubrics 3</Link>
+              <Link to="/rubrics4">Rubrics 4</Link>
               <Link to="/rubrics1">Rubrics 5</Link>
               <Link to="/rubrics1">Rubrics 6</Link>
             </div>
