@@ -9,6 +9,8 @@ import Rubric4 from './pages/Rubric4';
 import COProjectTable from './pages/COProjectTable';
 import POPage from './pages/POPage';
 import PSOPage from './pages/PSOPage';
+import GuideDashboard from './pages/GuideDashboard';
+import ProjectGroupPage from './pages/ProjectGroupPage';
 
 function App() {
   return (
@@ -24,8 +26,8 @@ function App() {
         <Route path="/mechanical" element={<COProjectTable />} />
         <Route path="/po" element={<POPage />} />
         <Route path="/pso" element={<PSOPage />} />
-
-        
+        <Route path="/guide-dashboard" element={<GuideDashboard />} />
+        <Route path="/project-dashboard" element={<ProjectGroupPage />} />
         
       </Routes>
     </>

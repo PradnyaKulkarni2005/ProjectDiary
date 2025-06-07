@@ -123,6 +123,7 @@ function Navbar() {
               <a href="#">AIML</a>
               <a href="#">CS Regional</a>
               <Link to="/pso">Programme Specific Outcomes (PSO)</Link>
+              <Link to="/guide-dashboard">Guide</Link>
             </div>
           </div>
 
@@ -141,7 +142,7 @@ function Navbar() {
           <div className="dropdown">
             <button className="dropbtn">Login ▾</button>
             <div className="dropdown-content">
-              <a href="/login?role=guide">Guide</a>
+              <Link to="/login?role=guide">Guide</Link>
               <a href="/login?role=coordinator">Project Coordinator</a>
               <a href="/login?role=student">Student</a>
               <a href="/login?role=hod">HOD</a>
