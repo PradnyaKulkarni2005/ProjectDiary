@@ -1,6 +1,8 @@
 // src/pages/LoginPage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState} from 'react';
+import { Link } from 'react-router-dom';
 import './LoginPage.css';
+
 
 function LoginPage() {
   const [role, setRole] = useState('');
@@ -43,7 +45,7 @@ function LoginPage() {
             <span className="span">Forgot password?</span>
           </div>
 
-          <button className="button-submit">Sign In</button>
+          <Link to='/student-dashboard'><button className="button-submit">Sign In</button></Link>
           <p className="p">Don't have an account? <span className="span">Sign Up</span></p>
           <p className="p line">Or With</p>
 
