@@ -6,7 +6,7 @@ function GuideDashboard() {
   const navigate = useNavigate();
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container2">
       <h1 className="dashboard-title">Guide Dashboard</h1>
       <div className="button-container">
         <button className="group-button" onClick={() => navigate('/project-dashboard')}>
