@@ -9,12 +9,9 @@ import Rubric4 from './pages/Rubric4';
 import COProjectTable from './pages/COProjectTable';
 import POPage from './pages/POPage';
 import PSOPage from './pages/PSOPage';
-<<<<<<< HEAD
 import GuideDashboard from './pages/GuideDashboard';
 import ProjectGroupPage from './pages/ProjectGroupPage';
-=======
 import StudentDashboard from './pages/StudentDashboard';
->>>>>>> ce8812038d5fe7849f1909ec7155b215dd20de07
 
 function App() {
   return (
