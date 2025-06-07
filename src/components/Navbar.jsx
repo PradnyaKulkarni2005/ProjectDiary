@@ -116,11 +116,13 @@ function Navbar() {
             <button className="dropbtn">Department ▾</button>
             <div className="dropdown-content">
               <a href="#">Computer Science</a>
-              <a href="#">Information Technology</a>
+              <a href="">Information Technology</a>
+               <Link to="/po">Programme Outcomes (PO's)</Link>
               <a href="#">Civil</a>
-              <a href="#">Mechanical</a>
+              <Link to="/mechanical">Mechanical</Link>
               <a href="#">AIML</a>
               <a href="#">CS Regional</a>
+              <Link to="/pso">Programme Specific Outcomes (PSO)</Link>
             </div>
           </div>
 

@@ -1,0 +1,102 @@
+.pso-page {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #fdfdfd;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+.pso-page h1 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: #002244;
+}
+
+.pso-page p {
+  text-align: center;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 25px;
+  font-size: 16px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  animation: fadeIn 0.6s ease-in;
+}
+
+.pso-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+}
+
+.pso-table th,
+.pso-table td {
+  border: 1px solid #ddd;
+  padding: 12px 14px;
+  vertical-align: top;
+  transition: background 0.3s ease-in-out;
+}
+
+.pso-table th {
+  background: linear-gradient(90deg, #002244, #005f99);
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.pso-table tr:nth-child(even) {
+  background-color: #f7f9fc;
+}
+
+.pso-table tr:hover {
+  background-color: #eaf3ff;
+  transform: scale(1.01);
+}
+
+.pso-table td {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* Animation on load */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth scaling on hover */
+.pso-table tr {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Responsive text */
+@media (max-width: 768px) {
+  .pso-page {
+    padding: 20px;
+  }
+
+  .pso-table th,
+  .pso-table td {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .pso-page h1 {
+    font-size: 22px;
+  }
+}
