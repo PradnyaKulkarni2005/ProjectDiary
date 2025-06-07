@@ -9,6 +9,7 @@ import Rubric4 from './pages/Rubric4';
 import COProjectTable from './pages/COProjectTable';
 import POPage from './pages/POPage';
 import PSOPage from './pages/PSOPage';
+import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
   return (
@@ -16,6 +17,8 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        
         <Route path="/login/*" element={<LoginPage />} />
         <Route path="/rubrics1" element={<Rubric1 />} />
         <Route path="/rubrics2" element={<Rubric2 />} />

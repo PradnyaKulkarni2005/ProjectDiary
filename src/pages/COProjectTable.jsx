@@ -1,5 +1,5 @@
 import React from "react";
-import "./RubricTable.css"; // Reusing existing CSS
+import "./RubricTable.css"; 
 
 export default function COProjectTable() {
   const data = [
