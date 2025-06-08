@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import './StudentDashboard.css';
 import ActivitySheet from './ActivitySheet';
+import ListOfPublications from './ListOfPublications';
 
 
 const menuItems = [
@@ -20,8 +21,9 @@ export default function StudentDashboard() {
     switch (selectedMenu) {
       case 'Activity Sheet':
         return <ActivitySheet />;
-      // case 'Meetings':
-      //   return <Meetings />;
+      case 'List Of Publications':
+        return <ListOfPublications />;
+
       default:
         return <div>Select a section from the menu.</div>;
     }
