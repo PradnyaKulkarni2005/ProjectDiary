@@ -11,7 +11,7 @@ import POPage from './pages/POPage';
 import PSOPage from './pages/PSOPage';
 import GuideDashboard from './pages/GuideDashboard';
 import ProjectGroupPage from './pages/ProjectGroupPage';
-import StudentDashboard from './pages/StudentDashboard';
+import StudentDashboard from './Student/StudentDashboard';
 
 function App() {
   return (

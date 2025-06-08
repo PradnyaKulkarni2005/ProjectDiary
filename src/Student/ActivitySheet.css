@@ -1,0 +1,106 @@
+
+.activity-sheet {
+  padding: 2rem;
+  background: #f0f7ff;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  max-width: 900px;
+  margin: auto;
+  animation: fadeIn 0.5s ease;
+  font-family: 'Roboto';
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.months-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.month-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background-color: #e8f9ff;
+  font-weight: bold;
+  color: #02293a;
+ 
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.month-button:hover {
+  background-color: #8dc1ec;
+  transform: scale(1.05);
+}
+
+.month-button.active {
+  background-color: #2761a9;
+  color: white;
+  transform: scale(1.05);
+}
+
+.sheet-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #003b5c;
+}
+
+.input-label {
+  display: block;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #003b5c;
+  animation: fadeIn 0.3s ease-in;
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background-color: #f8fafc;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+textarea:focus {
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+  transform: scale(1.01);
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+  .activity-sheet {
+    padding: 1rem;
+  }
+
+  .months-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .month-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .sheet-title {
+    font-size: 1.4rem;
+  }
+}
