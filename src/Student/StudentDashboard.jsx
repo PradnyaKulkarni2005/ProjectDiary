@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import './StudentDashboard.css';
 import ActivitySheet from './ActivitySheet';
 import ListOfPublications from './ListOfPublications';
+import Patents from './Patents';
 
 
 const menuItems = [
@@ -23,6 +24,9 @@ export default function StudentDashboard() {
         return <ActivitySheet />;
       case 'List Of Publications':
         return <ListOfPublications />;
+      case 'Patents':
+        return <Patents />;
+      
 
       default:
         return <div>Select a section from the menu.</div>;
