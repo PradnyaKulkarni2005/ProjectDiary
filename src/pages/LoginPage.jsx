@@ -1,6 +1,6 @@
 // src/pages/LoginPage.jsx
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './LoginPage.css';
 
 function LoginPage() {
@@ -14,10 +14,10 @@ function LoginPage() {
   }, []);
 
   const handleLogin = (e) => {
-  e.preventDefault();
-  // ✅ Navigate to the correct dashboard route
-  navigate('/dashboard/coordinator');
-};
+    e.preventDefault();
+    // ✅ Navigate to the correct dashboard route
+    navigate('/dashboard/coordinator');
+  };
 
   return (
     <div className="login-container">
@@ -50,8 +50,8 @@ function LoginPage() {
         <p className="p line">Or With</p>
 
         <div className="flex-row">
-          <button className="btn google">Google</button>
-          <button className="btn apple">Apple</button>
+          <button className="btn google" type="button">Google</button>
+          <button className="btn apple" type="button">Apple</button>
         </div>
       </form>
     </div>

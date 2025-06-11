@@ -78,6 +78,8 @@
 // src/components/Navbar.jsx
 import React, { useState } from 'react';
 import './Navbar.css';
+import { Link } from 'react-router-dom';
+
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -114,30 +116,33 @@ function Navbar() {
             <button className="dropbtn">Department ▾</button>
             <div className="dropdown-content">
               <a href="#">Computer Science</a>
-              <a href="#">Information Technology</a>
+              <a href="">Information Technology</a>
+               <Link to="/po">Programme Outcomes (PO's)</Link>
               <a href="#">Civil</a>
-              <a href="#">Mechanical</a>
+              <Link to="/mechanical">Mechanical</Link>
               <a href="#">AIML</a>
               <a href="#">CS Regional</a>
+              <Link to="/pso">Programme Specific Outcomes (PSO)</Link>
+              <Link to="/guide-dashboard">Guide</Link>
             </div>
           </div>
 
           <div className="dropdown">
             <button className="dropbtn">Rubrics ▾</button>
             <div className="dropdown-content">
-              <a href="#">Rubrics 1</a>
-              <a href="#">Rubrics 2</a>
-              <a href="#">Rubrics 3</a>
-              <a href="#">Rubrics 4</a>
-              <a href="#">Rubrics 5</a>
-              <a href="#">Rubrics 6</a>
+              <Link to="/rubrics1">Rubrics 1</Link>
+              <Link to="/rubrics2">Rubrics 2</Link>
+              <Link to="/rubrics3">Rubrics 3</Link>
+              <Link to="/rubrics4">Rubrics 4</Link>
+              <Link to="/rubrics1">Rubrics 5</Link>
+              <Link to="/rubrics1">Rubrics 6</Link>
             </div>
           </div>
 
           <div className="dropdown">
             <button className="dropbtn">Login ▾</button>
             <div className="dropdown-content">
-              <a href="/login?role=guide">Guide</a>
+              <Link to="/login?role=guide">Guide</Link>
               <a href="/login?role=coordinator">Project Coordinator</a>
               <a href="/login?role=student">Student</a>
               <a href="/login?role=hod">HOD</a>
