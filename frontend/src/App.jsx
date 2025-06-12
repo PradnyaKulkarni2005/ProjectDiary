@@ -1,6 +1,5 @@
-// src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom'; // ✅ Only use Routes and Route
 
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
@@ -21,7 +20,7 @@ import StudentDashboard from './Student/StudentDashboard';
 
 function App() {
   return (
-    <Router>
+    <>
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -39,7 +38,7 @@ function App() {
         <Route path="/guide-dashboard" element={<GuideDashboard />} />
         <Route path="/project-dashboard" element={<ProjectGroupPage />} />
       </Routes>
-    </Router>
+    </>
   );
 }
 
