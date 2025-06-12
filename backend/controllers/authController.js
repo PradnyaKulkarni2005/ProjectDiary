@@ -22,9 +22,7 @@ exports.register = async (req, res) => {
         return res.status(403).json({ message: 'Email not found in student records' });
       }
 
-      if (!student[0].verified) {
-        return res.status(403).json({ message: 'Email found but not verified by admin' });
-      }
+      
     }
 
     // Proceed to hash password and register
