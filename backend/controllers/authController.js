@@ -5,7 +5,7 @@ const { generateToken } = require('../utils/generateToken');
 
 //Register a new user
 exports.register = async (req, res) => {
-  const { email, password, role } = req.body;
+  const {email, password, role } = req.body;
 
   try {
     // Check if user already exists

@@ -16,7 +16,7 @@ import PSOPage from './pages/PSOPage';
 import GuideDashboard from './pages/GuideDashboard';
 import ProjectGroupPage from './pages/ProjectGroupPage';
 import StudentDashboard from './Student/StudentDashboard';
-import Registeration from './pages/Registration';
+import Registeration from './pages/RegisterPage';
 
 function App() {
   return (
