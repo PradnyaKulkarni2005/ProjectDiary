@@ -42,19 +42,38 @@ exports.register = async (req, res) => {
 
 // Login function
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
+
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
   try {
-    const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-    const user = users[0];
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const user = rows[0];
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
 
-    const token = generateToken(user.id, user.role);
-    res.json({ token, role: user.role });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid password.' });
+    }
+
+    if (user.role !== role) {
+      return res.status(403).json({ message: `${role} account not found for this email.` });
+    }
+
+    // ✅ generate token or session here if needed
+    res.status(200).json({
+      message: 'Login successful',
+      email: user.email,
+      role: user.role,
+    });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error during login.' });
   }
 };

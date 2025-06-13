@@ -33,15 +33,20 @@ function LoginPage() {
       setLoading(true);
       setError('');
 
-      const response = await loginUser({ email, password });
+      const response = await loginUser({ email, password, role });
 
       // assuming the response contains role
       const userRole = response.role || role;
       alert('Login successful!');
       navigate(`/${userRole}-dashboard`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
-    } finally {
+  if (err.response?.status === 403) {
+    setError(err.response.data.message);
+  } else {
+    setError(err.response?.data?.message || 'Login failed. Please try again.');
+  }
+}
+ finally {
       setLoading(false);
     }
   };
