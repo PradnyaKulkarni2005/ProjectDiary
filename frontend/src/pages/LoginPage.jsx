@@ -46,7 +46,8 @@ function LoginPage() {
 
         <button className="button-submit" type="submit">Sign In</button>
 
-        <p className="p">Don't have an account? <span className="span">Sign Up</span></p>
+        <p className="p">Don't have an account? <Link className="span" to="/register">Sign Up</Link></p>
+
         <p className="p line">Or With</p>
 
         <div className="flex-row">

@@ -9,7 +9,8 @@ function RegisterPage() {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: ''
   });
   const [error, setError] = useState('');
 
@@ -19,9 +20,9 @@ function RegisterPage() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    const { username, email, password, confirmPassword } = form;
+    const { username, email, password, confirmPassword, role } = form;
 
-    if (!username || !email || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword || !role) {
       return setError('Please fill in all fields.');
     }
     if (password !== confirmPassword) {
@@ -31,7 +32,7 @@ function RegisterPage() {
     // Simulate registration logic (you can later add real backend call)
     console.log('User registered:', form);
     alert('Registration successful!');
-    navigate(`/login?role=user`);
+    navigate(`/login?role=${role}`);
   };
 
   return (
@@ -89,8 +90,29 @@ function RegisterPage() {
           />
         </div>
 
+        <div className="flex-column"><label>Select Role</label></div>
+        <div className="inputForm">
+          <select
+            className="input"
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            required
+          >
+            <option value="">-- Select Role --</option>
+            <option value="student">Student</option>
+            <option value="guide">Guide</option>
+            <option value="coordinator">Coordinator</option>
+            <option value="hod">HOD</option>
+            <option value="director">Director</option>
+          </select>
+        </div>
+
         <button className="button-submit" type="submit">Register</button>
-        <p className="p">Already have an account? <span className="span" onClick={() => navigate('/login')}>Login</span></p>
+        <p className="p">
+          Already have an account?{' '}
+          <span className="span" onClick={() => navigate('/login')}>Login</span>
+        </p>
       </form>
     </div>
   );

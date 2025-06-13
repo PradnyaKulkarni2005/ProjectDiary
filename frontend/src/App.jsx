@@ -4,7 +4,6 @@ import { Routes, Route } from 'react-router-dom'; // ✅ Only use Routes and Rou
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/Registration';
 import CoordinatorDashboard from './pages/CoordinatorDashboard';
 
 import Rubric1 from './pages/Rubric1';
@@ -17,6 +16,7 @@ import PSOPage from './pages/PSOPage';
 import GuideDashboard from './pages/GuideDashboard';
 import ProjectGroupPage from './pages/ProjectGroupPage';
 import StudentDashboard from './Student/StudentDashboard';
+import Registeration from './pages/Registration';
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login/*" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        
         <Route path="/dashboard/coordinator" element={<CoordinatorDashboard />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/rubrics1" element={<Rubric1 />} />
@@ -37,6 +37,8 @@ function App() {
         <Route path="/pso" element={<PSOPage />} />
         <Route path="/guide-dashboard" element={<GuideDashboard />} />
         <Route path="/project-dashboard" element={<ProjectGroupPage />} />
+        <Route path="/register" element={<Registeration />} />
+        {/* Add more routes as needed */}
       </Routes>
     </>
   );
