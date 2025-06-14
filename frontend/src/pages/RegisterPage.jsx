@@ -1,8 +1,8 @@
+// src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { registerUser } from '../api';
-import './LoginPage.css'; // Reusing same CSS
+import './LoginPage.css'; // Using the same styles as login
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -34,11 +34,13 @@ function RegisterPage() {
     try {
       setLoading(true);
       setError('');
+
+      // Register API call
       await registerUser({ email, password, role });
       alert('Registration successful!');
       navigate(`/login?role=${role}`);
     } catch (err) {
-      setError(err.toString());
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -47,12 +49,12 @@ function RegisterPage() {
   return (
     <div className="login-container">
       <form className="form" onSubmit={handleSubmit}>
-        <h3 className="form-title">Create Account</h3>
+        <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>Create Account</h3>
 
-        {error && <p className="error-message">{error}</p>}
+        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
-        <div className="input-group">
-          <label>Email</label>
+        <div className="flex-column"><label>Email</label></div>
+        <div className="inputForm">
           <input
             type="email"
             name="email"
@@ -64,8 +66,8 @@ function RegisterPage() {
           />
         </div>
 
-        <div className="input-group">
-          <label>Password</label>
+        <div className="flex-column"><label>Password</label></div>
+        <div className="inputForm">
           <input
             type="password"
             name="password"
@@ -77,8 +79,8 @@ function RegisterPage() {
           />
         </div>
 
-        <div className="input-group">
-          <label>Confirm Password</label>
+        <div className="flex-column"><label>Confirm Password</label></div>
+        <div className="inputForm">
           <input
             type="password"
             name="confirmPassword"
@@ -90,8 +92,8 @@ function RegisterPage() {
           />
         </div>
 
-        <div className="input-group">
-          <label>Select Role</label>
+        <div className="flex-column"><label>Select Role</label></div>
+        <div className="inputForm">
           <select
             className="input"
             name="role"
@@ -112,9 +114,9 @@ function RegisterPage() {
           {loading ? 'Registering...' : 'Register'}
         </button>
 
-        <p className="text-center">
+        <p className="p">
           Already have an account?{' '}
-          <span className="link" onClick={() => navigate('/login')}>
+          <span className="span" onClick={() => navigate('/login')}>
             Login
           </span>
         </p>
