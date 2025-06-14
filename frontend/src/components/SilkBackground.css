@@ -1,0 +1,93 @@
+.silk-hero-section {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Full screen height */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.silk-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  text-align: center;
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 1.2s ease-in-out;
+}
+
+.silk-hero-content h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.silk-hero-content p {
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: #e0e0e0;
+}
+
+.join-nss-btn {
+  padding: 12px 28px;
+  font-size: 1rem;
+  background: linear-gradient(to right, #f12711, #f5af19);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(241, 39, 17, 0.4);
+}
+
+.join-nss-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(245, 175, 25, 0.5);
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+@media (max-width: 768px) {
+  .silk-hero-content h1 {
+    font-size: 2.2rem;
+  }
+
+  .silk-hero-content p {
+    font-size: 1rem;
+  }
+
+  .join-nss-btn {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+  }
+}

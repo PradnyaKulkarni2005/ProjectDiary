@@ -72,39 +72,64 @@
 
 /* Carousel */
 .carousel-section {
-  padding: 40px 20px;
+  padding: 3rem 2rem;
+  background: #f0f8ff;
   text-align: center;
-  background-color: #f4faff;
+}
+
+.carousel-section h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #0077b6;
+  font-weight: bold;
 }
 
 .carousel-card {
-  max-width: 720px;
-  margin: auto;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 12px 24px rgba(0, 119, 182, 0.2);
   overflow: hidden;
-  transition: all 0.3s ease-in-out;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeSlideUp 1s ease forwards;
+  transform: translateY(20px);
+  opacity: 0;
 }
 
 .carousel-card:hover {
-  transform: scale(1.01);
+  transform: scale(1.03);
+  box-shadow: 0 16px 30px rgba(0, 119, 182, 0.3);
 }
 
 .carousel-card img {
   width: 100%;
-  height: 350px;
+  height: 360px;
   object-fit: cover;
+  border-bottom: 2px solid #caf0f8;
 }
 
 .carousel-desc {
-  padding: 20px;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #e0f7fa, #f1faff);
 }
 
 .carousel-desc h4 {
-  color: #004080;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: #023e8a;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
+
+.carousel-desc p {
+  font-size: 1rem;
+  color: #4a4a4a;
+  line-height: 1.6;
+}
+
 
 /* Features Section - Interactive Cards */
 .features-grid {
@@ -236,5 +261,161 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+  }
+}
+
+.features-flip-section {
+  padding: 3rem 2rem;
+  background-color: #f4f9ff;
+  text-align: center;
+}
+
+.flip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.flip-card {
+  background-color: transparent;
+  width: 240px;
+  height: 260px;
+  perspective: 1000px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.flip-card-front {
+  background: linear-gradient(135deg, #e0f0ff 0%, #ffffff 100%);
+  color: #004080;
+}
+
+.flip-card-back {
+  background: linear-gradient(135deg, #004080, #1976d2);
+  color: white;
+  transform: rotateY(180deg);
+}
+.timeline-section {
+  padding: 3rem 2rem;
+  background-color: #fff8f0;
+  text-align: center;
+}
+
+.timeline-section h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #2318f7;
+}
+
+.timeline {
+  position: relative;
+  margin: 0 auto;
+  padding: 1rem 0;
+  max-width: 600px;
+  list-style: none;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #8bd2f3, #379dfc);
+  transform: translateX(-50%);
+  animation: growLine 2s ease-in-out forwards;
+}
+
+@keyframes growLine {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+.timeline li {
+  position: relative;
+  margin: 2rem 0;
+  padding: 1rem 2rem;
+  background: #5edaeb;
+  border-radius: 8px;
+  width: 80%;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: fadeSlideUp 1s ease forwards;
+}
+
+@keyframes fadeSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timeline li:nth-child(even) {
+  left: 50%;
+  transform: translate(10%, 20px);
+}
+
+.timeline li:nth-child(odd) {
+  left: 0;
+  transform: translate(-10%, 20px);
+}
+
+.timeline li:hover {
+  background: #4aabfa;
+  box-shadow: 0 4px 20px rgba(15, 32, 218, 0.3);
+  transform: scale(1.03);
+  transition: all 0.3s ease;
+}
+
+.timeline li::before {
+  content: "📌";
+  position: absolute;
+  left: -20px;
+  top: 1rem;
+  font-size: 1.5rem;
+  animation: pop 0.5s ease forwards;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
   }
 }

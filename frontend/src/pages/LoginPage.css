@@ -1,104 +1,104 @@
-/* src/pages/LoginPage.css */
-
-.navbar {
-  background-color: #2d79f3;
-  padding: 1rem 2rem;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
-  font-family: 'Segoe UI', sans-serif;
+/* Box model and resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+/* Background container */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 90vh;
+  min-height: 100vh;
   background-color: #f6f9fc;
   padding: 20px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-color: #ffffff;
-  padding: 30px;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', sans-serif;
 }
 
-::placeholder {
-  font-family: inherit;
+/* Form card */
+.form {
+  background-color: #ffffff;
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.flex-column > label {
-  color: #151717;
+/* Form heading */
+.form h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 24px;
   font-weight: 600;
 }
 
-.inputForm {
-  border: 1.5px solid #ecedec;
-  border-radius: 10px;
-  height: 50px;
+/* Input group */
+.input-group {
   display: flex;
-  align-items: center;
-  padding-left: 10px;
-  transition: 0.2s ease-in-out;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.input {
-  margin-left: 10px;
+.input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.input-group input {
+  height: 45px;
+  padding: 0 14px;
+  border: 1.5px solid #ccc;
   border-radius: 10px;
-  border: none;
-  width: 100%;
-  height: 100%;
   font-size: 15px;
+  background-color: white;
+  transition: border-color 0.2s ease;
 }
 
-.input:focus {
+.input-group input:focus {
   outline: none;
+  border-color: #2d79f3;
+  box-shadow: 0 0 5px rgba(45, 121, 243, 0.2);
 }
 
-.inputForm:focus-within {
-  border: 1.5px solid #2d79f3;
-}
-
-.flex-row {
+/* Remember and Forgot section */
+.options-row {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
   justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #444;
 }
 
-.flex-row > div > label {
-  font-size: 14px;
-  color: black;
-  font-weight: 400;
+.options-row input[type="checkbox"] {
+  margin-right: 6px;
 }
 
-.span {
-  font-size: 14px;
-  margin-left: 5px;
+.options-row .link {
   color: #2d79f3;
+  text-decoration: none;
   font-weight: 500;
   cursor: pointer;
 }
 
+.options-row .link:hover {
+  text-decoration: underline;
+}
+
+/* Submit button */
 .button-submit {
-  margin: 20px 0 10px 0;
-  background-color: #2d79f3;
-  border: none;
-  color: white;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: 10px;
   height: 50px;
-  width: 100%;
+  background-color: #2d79f3;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -107,41 +107,53 @@
   background-color: #1a5dcc;
 }
 
-.p {
+/* Text sections */
+.text-center {
   text-align: center;
-  color: black;
   font-size: 14px;
-  margin: 5px 0;
+  color: #555;
 }
 
-.btn {
-  margin-top: 10px;
-  width: 100%;
-  height: 50px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.text-center .link {
+  color: #2d79f3;
   font-weight: 500;
-  gap: 10px;
-  border: 1px solid #ededef;
-  background-color: white;
+  margin-left: 5px;
+  text-decoration: none;
   cursor: pointer;
-  transition: 0.2s ease-in-out;
 }
 
-.btn:hover {
-  border: 1px solid #2d79f3;
+.text-center .link:hover {
+  text-decoration: underline;
 }
 
+/* Social buttons */
+.social-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.social-button {
+  flex: 1;
+  height: 45px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.social-button:hover {
+  border-color: #2d79f3;
+}
+
+/* Responsive */
 @media (max-width: 480px) {
   .form {
-    padding: 20px;
-    width: 100%;
+    padding: 25px;
   }
 
-  .navbar {
-    font-size: 1rem;
-    padding: 0.8rem 1rem;
+  .form h3 {
+    font-size: 20px;
   }
 }

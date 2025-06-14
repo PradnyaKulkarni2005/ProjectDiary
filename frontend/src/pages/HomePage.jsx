@@ -53,24 +53,38 @@ const toggleCard = (index) => {
         </div>
       </section>
 
-     <section className="features-grid">
-  {[
-    { title: "📑 Project Guidelines", content: "Step-wise process and documentation templates for students and guides." },
-    { title: "📊 Rubrics Evaluation", content: "Auto-calculated scores with rubrics alignment for unbiased grading." },
-    { title: "👨‍🏫 Central Collaboration", content: "Faculty, mentors and students working on the same platform with updates." },
-  ].map((item, index) => (
-    <div
-      key={index}
-      className={`feature-card ${openCard === index ? 'open' : ''}`}
-      onClick={() => toggleCard(index)}
-    >
-      <h3>{item.title}</h3>
-      <div className="feature-content">
-        <p>{item.content}</p>
+     <section className="features-flip-section">
+  <h2>✨ Why Use This Portal?</h2>
+  <div className="flip-grid">
+    {[
+      {
+        front: "📑 Project Guidelines",
+        back: "Step-wise process and documentation templates for students and guides."
+      },
+      {
+        front: "📊 Rubrics Evaluation",
+        back: "Auto-calculated scores with rubrics alignment for unbiased grading."
+      },
+      {
+        front: "👨‍🏫 Central Collaboration",
+        back: "Faculty, mentors and students working on the same platform with updates."
+      }
+    ].map((item, index) => (
+      <div className="flip-card" key={index}>
+        <div className="flip-card-inner">
+          <div className="flip-card-front">
+            <h3>{item.front}</h3>
+            <p>Hover to view more</p>
+          </div>
+          <div className="flip-card-back">
+            <p>{item.back}</p>
+          </div>
+        </div>
       </div>
-    </div>
-  ))}
+    ))}
+  </div>
 </section>
+
 
       <section className="timeline-section">
         <h2>📆 Project Milestone Timeline</h2>

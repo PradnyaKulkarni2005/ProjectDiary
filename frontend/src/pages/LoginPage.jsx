@@ -1,4 +1,4 @@
-// src/pages/LoginPage.jsx
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { loginUser } from '../api'; // import login API
@@ -54,60 +54,48 @@ function LoginPage() {
   return (
     <div className="login-container">
       <form className="form" onSubmit={handleLogin}>
-        <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>
+        <h3>
           Login as <span style={{ textTransform: 'capitalize' }}>{role || 'user'}</span>
         </h3>
 
-        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-
-        <div className="flex-column"><label>Email</label></div>
-        <div className="inputForm">
-          <input
-            type="email"
-            name="email"
-            className="input"
-            placeholder="Enter your Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+        {/* Email */}
+        <div className="input-group">
+          <label>Email</label>
+          <input type="email" placeholder="Enter your email" required />
         </div>
 
-        <div className="flex-column"><label>Password</label></div>
-        <div className="inputForm">
-          <input
-            type="password"
-            name="password"
-            className="input"
-            placeholder="Enter your Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+        {/* Password */}
+        <div className="input-group">
+          <label>Password</label>
+          <input type="password" placeholder="Enter your password" required />
         </div>
 
-        <div className="flex-row">
+        {/* Remember me & forgot */}
+        <div className="options-row">
           <div>
             <input type="checkbox" />
             <label>Remember me</label>
           </div>
-          <span className="span">Forgot password?</span>
+          <span className="link">Forgot password?</span>
         </div>
 
-        <button className="button-submit" type="submit" disabled={loading}>
-          {loading ? 'Signing In...' : 'Sign In'}
-        </button>
+        {/* Submit */}
+        <button className="button-submit" type="submit">Sign In</button>
 
-        <p className="p">
-          Don't have an account? <Link className="span" to="/register">Sign Up</Link>
+        {/* Register link */}
+        <p className="text-center">
+          Don't have an account?
+          <Link to="/register" className="link"> Sign Up</Link>
         </p>
 
-        <p className="p line">Or With</p>
-
-        <div className="flex-row">
-          <button className="btn google" type="button">Google</button>
-          <button className="btn apple" type="button">Apple</button>
-        </div>
+        {/* You can uncomment this if you want social login buttons later */}
+        {/* 
+        <p className="text-center">Or Sign In With</p>
+        <div className="social-buttons">
+          <button className="social-button">Google</button>
+          <button className="social-button">Apple</button>
+        </div> 
+        */}
       </form>
     </div>
   );

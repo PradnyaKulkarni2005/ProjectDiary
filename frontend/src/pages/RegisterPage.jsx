@@ -1,8 +1,8 @@
-// src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { registerUser } from '../api';
-import './RegisterPage.css';
+import './LoginPage.css'; // Reusing same CSS
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -34,7 +34,6 @@ function RegisterPage() {
     try {
       setLoading(true);
       setError('');
-      // Send only the necessary fields
       await registerUser({ email, password, role });
       alert('Registration successful!');
       navigate(`/login?role=${role}`);
@@ -52,8 +51,8 @@ function RegisterPage() {
 
         {error && <p className="error-message">{error}</p>}
 
-        <div className="flex-column"><label>Email</label></div>
-        <div className="inputForm">
+        <div className="input-group">
+          <label>Email</label>
           <input
             type="email"
             name="email"
@@ -61,11 +60,12 @@ function RegisterPage() {
             className="input"
             value={form.email}
             onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="flex-column"><label>Password</label></div>
-        <div className="inputForm">
+        <div className="input-group">
+          <label>Password</label>
           <input
             type="password"
             name="password"
@@ -73,11 +73,12 @@ function RegisterPage() {
             className="input"
             value={form.password}
             onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="flex-column"><label>Confirm Password</label></div>
-        <div className="inputForm">
+        <div className="input-group">
+          <label>Confirm Password</label>
           <input
             type="password"
             name="confirmPassword"
@@ -85,16 +86,18 @@ function RegisterPage() {
             className="input"
             value={form.confirmPassword}
             onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="flex-column"><label>Select Role</label></div>
-        <div className="inputForm">
+        <div className="input-group">
+          <label>Select Role</label>
           <select
             className="input"
             name="role"
             value={form.role}
             onChange={handleChange}
+            required
           >
             <option value="">-- Select Role --</option>
             <option value="student">Student</option>
@@ -109,9 +112,11 @@ function RegisterPage() {
           {loading ? 'Registering...' : 'Register'}
         </button>
 
-        <p className="p">
+        <p className="text-center">
           Already have an account?{' '}
-          <span className="span" onClick={() => navigate('/login')}>Login</span>
+          <span className="link" onClick={() => navigate('/login')}>
+            Login
+          </span>
         </p>
       </form>
     </div>
