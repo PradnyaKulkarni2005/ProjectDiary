@@ -1,7 +1,7 @@
-
+// src/pages/LoginPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginUser } from '../api'; // import login API
+import { loginUser } from '../api'; // login API
 import './LoginPage.css';
 
 function LoginPage() {
@@ -35,18 +35,16 @@ function LoginPage() {
 
       const response = await loginUser({ email, password, role });
 
-      // assuming the response contains role
       const userRole = response.role || role;
       alert('Login successful!');
       navigate(`/${userRole}-dashboard`);
     } catch (err) {
-  if (err.response?.status === 403) {
-    setError(err.response.data.message);
-  } else {
-    setError(err.response?.data?.message || 'Login failed. Please try again.');
-  }
-}
- finally {
+      if (err.response?.status === 403) {
+        setError(err.response.data.message);
+      } else {
+        setError(err.response?.data?.message || 'Login failed. Please try again.');
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -54,48 +52,60 @@ function LoginPage() {
   return (
     <div className="login-container">
       <form className="form" onSubmit={handleLogin}>
-        <h3>
+        <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>
           Login as <span style={{ textTransform: 'capitalize' }}>{role || 'user'}</span>
         </h3>
 
-        {/* Email */}
-        <div className="input-group">
-          <label>Email</label>
-          <input type="email" placeholder="Enter your email" required />
+        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+
+        <div className="flex-column"><label>Email</label></div>
+        <div className="inputForm">
+          <input
+            type="email"
+            name="email"
+            className="input"
+            placeholder="Enter your Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
         </div>
 
-        {/* Password */}
-        <div className="input-group">
-          <label>Password</label>
-          <input type="password" placeholder="Enter your password" required />
+        <div className="flex-column"><label>Password</label></div>
+        <div className="inputForm">
+          <input
+            type="password"
+            name="password"
+            className="input"
+            placeholder="Enter your Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
         </div>
 
-        {/* Remember me & forgot */}
-        <div className="options-row">
+        <div className="flex-row">
           <div>
             <input type="checkbox" />
             <label>Remember me</label>
           </div>
-          <span className="link">Forgot password?</span>
+          <span className="span">Forgot password?</span>
         </div>
 
-        {/* Submit */}
-        <button className="button-submit" type="submit">Sign In</button>
+        <button className="button-submit" type="submit" disabled={loading}>
+          {loading ? 'Signing In...' : 'Sign In'}
+        </button>
 
-        {/* Register link */}
-        <p className="text-center">
-          Don't have an account?
-          <Link to="/register" className="link"> Sign Up</Link>
+        <p className="p">
+          Don't have an account? <Link className="span" to="/register">Sign Up</Link>
         </p>
 
-        {/* You can uncomment this if you want social login buttons later */}
-        {/* 
-        <p className="text-center">Or Sign In With</p>
-        <div className="social-buttons">
-          <button className="social-button">Google</button>
-          <button className="social-button">Apple</button>
-        </div> 
-        */}
+        <p className="p line">Or With</p>
+
+        <div className="flex-row">
+          <button className="btn google" type="button">Google</button>
+          <button className="btn apple" type="button">Apple</button>
+        </div>
       </form>
     </div>
   );
