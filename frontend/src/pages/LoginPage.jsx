@@ -1,7 +1,6 @@
-// src/pages/LoginPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginUser } from '../api'; // login API
+import { loginUser } from '../api';
 import './LoginPage.css';
 
 function LoginPage() {
@@ -9,12 +8,13 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const roleFromURL = queryParams.get('role');
-    setRole(roleFromURL);
+    if (roleFromURL) setRole(roleFromURL);
   }, []);
 
   const handleChange = (e) => {
@@ -22,49 +22,57 @@ function LoginPage() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    const { email, password } = form;
+  e.preventDefault();
+  const { email, password } = form;
 
-    if (!email || !password) {
-      return setError('Please enter both email and password.');
+  if (!email || !password) {
+    return setError('Please enter both email and password.');
+  }
+
+  try {
+    setLoading(true);
+    setError('');
+    const response = await loginUser({ email, password, role });
+    console.log("Login Response:", response);
+
+    const userId = response?.id;
+    const userRole = response?.role || role;
+
+    if (!userId || !userRole) {
+      setError("Login response missing user ID or role.");
+      return;
     }
 
-    try {
-      setLoading(true);
-      setError('');
+    localStorage.setItem('userId', userId);
+    localStorage.setItem('role', userRole);
 
-      const response = await loginUser({ email, password, role });
+    alert('Login successful!');
+    navigate(`/${userRole}-dashboard`);
+  } catch (err) {
+    const message = err?.response?.data?.message || err?.message || 'Login failed. Please try again.';
+    setError(message);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const userRole = response.role || role;
-      alert('Login successful!');
-      navigate(`/${userRole}-dashboard`);
-    } catch (err) {
-      if (err.response?.status === 403) {
-        setError(err.response.data.message);
-      } else {
-        setError(err.response?.data?.message || 'Login failed. Please try again.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="login-container">
       <form className="form" onSubmit={handleLogin}>
-        <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>
+        <h3 className="form-title">
           Login as <span style={{ textTransform: 'capitalize' }}>{role || 'user'}</span>
         </h3>
 
-        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
         <div className="flex-column"><label>Email</label></div>
-        <div className="inputForm">
+        <div className="input-group">
           <input
             type="email"
             name="email"
+            placeholder="Enter your email"
             className="input"
-            placeholder="Enter your Email"
             value={form.email}
             onChange={handleChange}
             required
@@ -72,40 +80,39 @@ function LoginPage() {
         </div>
 
         <div className="flex-column"><label>Password</label></div>
-        <div className="inputForm">
+        <div className="input-group">
           <input
             type="password"
             name="password"
+            placeholder="Enter your password"
             className="input"
-            placeholder="Enter your Password"
             value={form.password}
             onChange={handleChange}
             required
           />
         </div>
 
-        <div className="flex-row">
+        <div className="options-row">
           <div>
-            <input type="checkbox" />
-            <label>Remember me</label>
+            <input
+              type="checkbox"
+              id="remember"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <label htmlFor="remember"> Remember me</label>
           </div>
-          <span className="span">Forgot password?</span>
+          <span className="link">Forgot password?</span>
         </div>
 
         <button className="button-submit" type="submit" disabled={loading}>
-          {loading ? 'Signing In...' : 'Sign In'}
+          {loading ? 'Signing in...' : 'Sign In'}
         </button>
 
-        <p className="p">
-          Don't have an account? <Link className="span" to="/register">Sign Up</Link>
+        <p className="text-center">
+          Don't have an account?
+          <Link to="/register" className="link"> Sign Up</Link>
         </p>
-
-        <p className="p line">Or With</p>
-
-        <div className="flex-row">
-          <button className="btn google" type="button">Google</button>
-          <button className="btn apple" type="button">Apple</button>
-        </div>
       </form>
     </div>
   );
