@@ -67,10 +67,12 @@ exports.login = async (req, res) => {
 
     // ✅ generate token or session here if needed
     res.status(200).json({
-      message: 'Login successful',
-      email: user.email,
-      role: user.role,
-    });
+  message: 'Login successful',
+  email: user.email,
+  role: user.role,
+  id: user.id // or user._id depending on your DB
+});
+
 
   } catch (err) {
     console.error(err);

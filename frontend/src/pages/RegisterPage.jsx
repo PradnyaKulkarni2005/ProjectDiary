@@ -49,12 +49,12 @@ function RegisterPage() {
   return (
     <div className="login-container">
       <form className="form" onSubmit={handleSubmit}>
-        <h3 style={{ textAlign: 'center', marginBottom: '15px' }}>Create Account</h3>
+        <h3>Create Account</h3>
 
         {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
-        <div className="flex-column"><label>Email</label></div>
-        <div className="inputForm">
+        <div className="input-group"><label>Email</label>
+       
           <input
             type="email"
             name="email"
@@ -66,8 +66,8 @@ function RegisterPage() {
           />
         </div>
 
-        <div className="flex-column"><label>Password</label></div>
-        <div className="inputForm">
+        <div className="input-group"><label>Password</label>
+        
           <input
             type="password"
             name="password"
@@ -79,8 +79,8 @@ function RegisterPage() {
           />
         </div>
 
-        <div className="flex-column"><label>Confirm Password</label></div>
-        <div className="inputForm">
+        <div className="input-group"><label>Confirm Password</label>
+        
           <input
             type="password"
             name="confirmPassword"
@@ -92,8 +92,8 @@ function RegisterPage() {
           />
         </div>
 
-        <div className="flex-column"><label>Select Role</label></div>
-        <div className="inputForm">
+        <div className="input-group"><label>Select Role</label>
+        
           <select
             className="input"
             name="role"
@@ -114,9 +114,9 @@ function RegisterPage() {
           {loading ? 'Registering...' : 'Register'}
         </button>
 
-        <p className="p">
+        <p className="text-center">
           Already have an account?{' '}
-          <span className="span" onClick={() => navigate('/login')}>
+          <span className="link" onClick={() => navigate('/login')}>
             Login
           </span>
         </p>
