@@ -1,7 +1,5 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { generateToken } = require('../utils/generateToken');
 
 // Register a new user
 exports.register = async (req, res) => {
@@ -17,7 +15,6 @@ exports.register = async (req, res) => {
     // If role is student, validate against student table
     if (role === 'student') {
       const student = await db.query('SELECT * FROM student WHERE email = $1', [email]);
-
       if (student.rows.length === 0) {
         return res.status(403).json({ message: 'Email not found in student records' });
       }
@@ -47,8 +44,8 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const rows = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = rows.rows[0];
+    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = result.rows[0];
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -63,6 +60,7 @@ exports.login = async (req, res) => {
       return res.status(403).json({ message: `${role} account not found for this email.` });
     }
 
+    // ✅ generate token or session here if needed
     res.status(200).json({
       message: 'Login successful',
       email: user.email,
