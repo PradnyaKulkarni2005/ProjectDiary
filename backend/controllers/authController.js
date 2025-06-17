@@ -60,7 +60,6 @@ exports.login = async (req, res) => {
       return res.status(403).json({ message: `${role} account not found for this email.` });
     }
 
-    // ✅ generate token or session here if needed
     res.status(200).json({
       message: 'Login successful',
       email: user.email,

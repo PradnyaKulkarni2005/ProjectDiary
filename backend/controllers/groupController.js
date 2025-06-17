@@ -20,17 +20,17 @@ exports.createGroup = async (req, res) => {
 
     // 3. Add members and send notifications
     for (const member of members) {
-      const userResult = await db.query(
-        'SELECT id FROM users WHERE email = $1',
+      const [userRows] = await db.query(
+        'SELECT id, name FROM users WHERE email = ?',
         [member.email]
       );
 
-      if (userResult.rows.length === 0) {
+      if (userRows.length === 0) {
         console.warn(`Member with email ${member.email} not found. Skipping.`);
         continue;
       }
 
-      const userId = userResult.rows[0].id;
+      const userId = userRows[0].id;
 
       await db.query(
         'INSERT INTO group_members (group_id, user_id, status) VALUES ($1, $2, $3)',
@@ -62,12 +62,11 @@ exports.respondToInvite = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const result = await db.query(
-      'SELECT * FROM group_members WHERE group_id = $1 AND user_id = $2',
+    const [memberRows] = await db.query(
+      'SELECT * FROM group_members WHERE group_id = ? AND user_id = ?',
       [groupId, userId]
     );
-
-    if (result.rows.length === 0) {
+    if (memberRows.length === 0) {
       return res.status(404).json({ error: 'Member not found in group' });
     }
 
@@ -76,13 +75,13 @@ exports.respondToInvite = async (req, res) => {
       [response, groupId, userId]
     );
 
-    const membersResult = await db.query(
-      'SELECT status FROM group_members WHERE group_id = $1',
+    const [allMembers] = await db.query(
+      'SELECT status FROM group_members WHERE group_id = ?',
       [groupId]
     );
 
-    const accepted = membersResult.rows.filter(m => m.status === 'accepted');
-    const rejected = membersResult.rows.filter(m => m.status === 'rejected');
+    const accepted = allMembers.filter(m => m.status === 'accepted');
+    const rejected = allMembers.filter(m => m.status === 'rejected');
 
     if (rejected.length > 0) {
       await db.query(
@@ -109,21 +108,19 @@ exports.checkUserGroupStatus = async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    const leaderCheck = await db.query(
-      'SELECT * FROM project_groups WHERE leader_id = $1 AND status = $2',
-      [userId, 'formed']
+    const [leader] = await db.query(
+      'SELECT * FROM project_groups WHERE leader_id = ? AND status = "formed"',
+      [userId]
     );
-
-    if (leaderCheck.rows.length > 0) {
+    if (leader.length > 0) {
       return res.json({ hasGroup: true });
     }
 
-    const memberCheck = await db.query(
-      'SELECT * FROM group_members WHERE user_id = $1 AND status = $2',
-      [userId, 'accepted']
+    const [member] = await db.query(
+      'SELECT * FROM group_members WHERE user_id = ? AND status = "accepted"',
+      [userId]
     );
-
-    if (memberCheck.rows.length > 0) {
+    if (member.length > 0) {
       return res.json({ hasGroup: true });
     }
 
@@ -138,6 +135,7 @@ exports.checkUserGroupStatus = async (req, res) => {
 // Get pending invitations for a user
 exports.getInvitations = async (req, res) => {
   const userId = req.params.userId;
+  console.log('Fetching invitations for userId:', userId); // 🟡 Check this shows 4
 
   try {
     const invitations = await db.query(
@@ -149,8 +147,8 @@ exports.getInvitations = async (req, res) => {
       [userId]
     );
 
-    res.json({ invitations: invitations.rows });
-
+    console.log('Query result:', invitations); // 🟢 This should be an array with data
+    res.json({ invitations });
   } catch (err) {
     console.error('Error fetching invitations:', err);
     res.status(500).json({ message: 'Failed to fetch invitations' });
@@ -164,27 +162,26 @@ exports.getGroupMemberStatuses = async (req, res) => {
   if (!leaderId) return res.status(400).json({ message: 'Invalid leader ID' });
 
   try {
-    const groupRes = await db.query(
-      'SELECT id FROM project_groups WHERE leader_id = $1',
+    // Get leader's group ID
+    const [[group]] = await db.query(
+      `SELECT id FROM project_groups WHERE leader_id = ?`,
       [leaderId]
     );
 
-    if (groupRes.rows.length === 0) {
+    if (!group) {
       return res.json({ members: [] });
     }
 
-    const groupId = groupRes.rows[0].id;
+    const [members] = await db.query(
+  `SELECT u.name, u.prn, gm.status
+   FROM group_members gm
+   JOIN users u ON gm.user_id = u.id
+   WHERE gm.group_id = ?`,
+  [group.id]
+);
 
-    const membersRes = await db.query(
-      `SELECT u.name, u.prn, gm.status
-       FROM group_members gm
-       JOIN users u ON gm.user_id = u.id
-       WHERE gm.group_id = $1`,
-      [groupId]
-    );
 
-    res.json({ members: membersRes.rows });
-
+    res.json({ members });
   } catch (err) {
     console.error('Error fetching group member statuses:', err);
     res.status(500).json({ message: 'Failed to fetch member statuses' });
