@@ -3,32 +3,30 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { generateToken } = require('../utils/generateToken');
 
-//Register a new user
+// Register a new user
 exports.register = async (req, res) => {
-  const {email, password, role } = req.body;
+  const { email, password, role } = req.body;
 
   try {
     // Check if user already exists
-    const [existing] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (existing.length > 0) {
+    const existing = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // If role is student, validate against student table
     if (role === 'student') {
-      const [student] = await db.query('SELECT * FROM student WHERE email = ?', [email]);
+      const student = await db.query('SELECT * FROM student WHERE email = $1', [email]);
 
-      if (student.length === 0) {
+      if (student.rows.length === 0) {
         return res.status(403).json({ message: 'Email not found in student records' });
       }
-
-      
     }
 
     // Proceed to hash password and register
     const hashedPassword = await bcrypt.hash(password, 10);
     await db.query(
-      'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
+      'INSERT INTO users (email, password, role) VALUES ($1, $2, $3)',
       [email, hashedPassword, role]
     );
 
@@ -49,8 +47,8 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
-    const user = rows[0];
+    const rows = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = rows.rows[0];
 
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -65,14 +63,12 @@ exports.login = async (req, res) => {
       return res.status(403).json({ message: `${role} account not found for this email.` });
     }
 
-    // ✅ generate token or session here if needed
     res.status(200).json({
-  message: 'Login successful',
-  email: user.email,
-  role: user.role,
-  id: user.id // or user._id depending on your DB
-});
-
+      message: 'Login successful',
+      email: user.email,
+      role: user.role,
+      id: user.id
+    });
 
   } catch (err) {
     console.error(err);
