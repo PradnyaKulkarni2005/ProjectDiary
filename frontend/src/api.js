@@ -56,7 +56,7 @@ export const getInvitations = async (userId) => {
   }
 };
 
-// ✅ Respond to a group invitation
+// ✅ Respond to a group invitation'
 export const respondToInvitation = async ({ userId, groupId, action }) => {
   try {
     const response = await API.post('/groups/respond', {
@@ -74,6 +74,7 @@ export const respondToInvitation = async ({ userId, groupId, action }) => {
 export const getGroupMemberStatuses = async (leaderId) => {
   try {
     const response = await API.get(`/groups/leader/members/${leaderId}`);
+    
     return response.data;
   } catch (error) {
     console.error('Error fetching group member statuses:', error);
@@ -99,5 +100,15 @@ export const fetchNotificationsForUser = async (userId) => {
   } catch (error) {
     console.error('Error fetching notifications:', error);
     throw error.response?.data?.message || 'Failed to fetch notifications';
+  }
+};
+
+export const getNotificationsByUserId = async (userId) => {
+  try {
+    const response = await API.get(`/notifications/${userId}`);
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error("API error fetching notifications:", error);
+    throw error;
   }
 };

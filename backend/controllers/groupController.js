@@ -58,51 +58,33 @@ exports.createGroup = async (req, res) => {
 
 // Respond to a group invitation
 exports.respondToInvite = async (req, res) => {
-  const { groupId, response } = req.body;
-  const userId = req.user.id;
+  const { userId, groupId, action } = req.body;
+
+  if (!userId || !groupId || !action) {
+    return res.status(400).json({ message: 'Missing userId, groupId, or action' });
+  }
 
   try {
-    const result = await db.query(
-      'SELECT * FROM group_members WHERE group_id = $1 AND user_id = $2',
-      [groupId, userId]
+    const update = await db.query(
+      `UPDATE group_members 
+       SET status = $1 
+       WHERE user_id = $2 AND group_id = $3 
+       RETURNING *`,
+      [action, userId, groupId]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Member not found in group' });
+    if (update.rowCount === 0) {
+      return res.status(404).json({ message: 'Invitation not found' });
     }
 
-    await db.query(
-      'UPDATE group_members SET status = $1 WHERE group_id = $2 AND user_id = $3',
-      [response, groupId, userId]
-    );
-
-    const membersResult = await db.query(
-      'SELECT status FROM group_members WHERE group_id = $1',
-      [groupId]
-    );
-
-    const accepted = membersResult.rows.filter(m => m.status === 'accepted');
-    const rejected = membersResult.rows.filter(m => m.status === 'rejected');
-
-    if (rejected.length > 0) {
-      await db.query(
-        'UPDATE project_groups SET status = $1 WHERE id = $2',
-        ['pending', groupId]
-      );
-    } else if (accepted.length >= 3) {
-      await db.query(
-        'UPDATE project_groups SET status = $1 WHERE id = $2',
-        ['formed', groupId]
-      );
-    }
-
-    res.json({ message: `You have ${response}ed the group invite.` });
+    res.json({ message: `Invitation ${action}`, data: update.rows[0] });
 
   } catch (err) {
-    console.error('Error responding to invite:', err);
-    res.status(500).json({ error: 'Failed to respond to invite' });
+    console.error('Error in respondToInvite:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Check if a user is already in a group
 exports.checkUserGroupStatus = async (req, res) => {
@@ -176,9 +158,14 @@ exports.getGroupMemberStatuses = async (req, res) => {
     const groupId = groupRes.rows[0].id;
 
     const membersRes = await db.query(
-      `SELECT u.name, u.prn, gm.status
+      `SELECT 
+         s.name, 
+         s.prn, 
+         s.department, 
+         gm.status
        FROM group_members gm
        JOIN users u ON gm.user_id = u.id
+       JOIN student s ON s.email = u.email
        WHERE gm.group_id = $1`,
       [groupId]
     );

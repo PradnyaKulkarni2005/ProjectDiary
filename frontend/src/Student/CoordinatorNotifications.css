@@ -1,0 +1,86 @@
+/* CoordinatorNotifications.css */
+
+.notifications-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.notifications-container h3 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+}
+
+.notification-card {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left: 6px solid #3498db;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  animation: slideUp 0.4s ease both;
+}
+
+.notification-card:hover {
+  transform: scale(1.02);
+}
+
+.notification-card p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+}
+
+.notification-card strong {
+  color: #2d3436;
+}
+
+.notification-card em {
+  font-size: 0.85rem;
+  color: #636e72;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .notification-card {
+    padding: 0.8rem;
+  }
+
+  .notifications-container h3 {
+    font-size: 1.5rem;
+  }
+
+  .notification-card p {
+    font-size: 0.95rem;
+  }
+}
