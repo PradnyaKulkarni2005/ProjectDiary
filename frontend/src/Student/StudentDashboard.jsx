@@ -8,6 +8,7 @@ import Notifications from './Notifications';
 import { useNavigate } from 'react-router-dom';
 import { checkUserGroupStatus } from '../api';
 import CoordinatorNotifications from './CoordinatorNotifications';
+
 const fullMenuItems = [
   'Activity Sheet',
   'Meetings',
@@ -23,6 +24,7 @@ export default function StudentDashboard() {
   const [selectedMenu, setSelectedMenu] = useState('');
   const [groupExists, setGroupExists] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0); // used to re-render after acceptance
   const navigate = useNavigate();
 
   const userId = localStorage.getItem('userId');
@@ -48,53 +50,55 @@ export default function StudentDashboard() {
     };
 
     fetchGroupStatus();
-  }, [userId, navigate]);
+  }, [userId, navigate, refreshKey]); // run when refreshKey changes
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
   };
 
- // Make sure this is imported at the top
+  // Callback passed to Notifications to trigger refresh on acceptance
+  const handleInviteAccepted = () => {
+    setRefreshKey((prev) => prev + 1); // Triggers recheck of group status
+  };
 
-const renderComponent = () => {
-  if (loading) return <div>Loading...</div>;
+  const renderComponent = () => {
+    if (loading) return <div>Loading...</div>;
 
-  if (!groupExists) {
+    if (!groupExists) {
+      switch (selectedMenu) {
+        case 'Create Group':
+          return <CreateGroup />;
+        case 'Notifications':
+          return (
+            <>
+              <Notifications currentUser={currentUser} onInviteAccepted={handleInviteAccepted} />
+              <CoordinatorNotifications userId={currentUser} />
+            </>
+          );
+        default:
+          return <div>Select a section from the menu.</div>;
+      }
+    }
+
     switch (selectedMenu) {
-      case 'Create Group':
-        return <CreateGroup />;
+      case 'Activity Sheet':
+        return <ActivitySheet />;
+      case 'List Of Publications':
+        return <ListOfPublications />;
+      case 'Patents':
+        return <Patents />;
       case 'Notifications':
         return (
           <>
             <Notifications currentUser={currentUser} />
-            <CoordinatorNotifications userId={currentUser} />
+            <CoordinatorNotifications userId={userId} />
           </>
         );
       default:
         return <div>Select a section from the menu.</div>;
     }
-  }
-
-  switch (selectedMenu) {
-    case 'Activity Sheet':
-      return <ActivitySheet />;
-    case 'List Of Publications':
-      return <ListOfPublications />;
-    case 'Patents':
-      return <Patents />;
-    case 'Notifications':
-      return (
-        <>
-          <Notifications currentUser={currentUser} />
-          <CoordinatorNotifications userId={userId} />
-        </>
-      );
-    default:
-      return <div>Select a section from the menu.</div>;
-  }
-};
-
+  };
 
   return (
     <div className="dashboard-container">
@@ -110,7 +114,7 @@ const renderComponent = () => {
               {item}
             </div>
           ))}
-          <button className="hero-button" onClick={() => navigate('/dashboard')}>
+          <button className="hero-button" onClick={() => navigate('/student-dashboard')}>
             Back to Dashboard
           </button>
           <button className="logout-button" onClick={handleLogout}>

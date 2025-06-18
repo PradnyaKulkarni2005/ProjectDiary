@@ -86,7 +86,7 @@ exports.respondToInvite = async (req, res) => {
 };
 
 
-// Check if a user is already in a group
+// Check if a user is already in a group or has a pending invitation
 exports.checkUserGroupStatus = async (req, res) => {
   const userId = req.params.userId;
 
@@ -96,26 +96,30 @@ exports.checkUserGroupStatus = async (req, res) => {
       [userId, 'formed']
     );
 
-    if (leaderCheck.rows.length > 0) {
-      return res.json({ hasGroup: true });
-    }
-
     const memberCheck = await db.query(
       'SELECT * FROM group_members WHERE user_id = $1 AND status = $2',
       [userId, 'accepted']
     );
 
-    if (memberCheck.rows.length > 0) {
-      return res.json({ hasGroup: true });
-    }
+    const pendingCheck = await db.query(
+      'SELECT * FROM group_members WHERE user_id = $1 AND status = $2',
+      [userId, 'pending']
+    );
 
-    return res.json({ hasGroup: false });
+    const hasGroup = leaderCheck.rows.length > 0 || memberCheck.rows.length > 0;
+    const hasPendingInvitation = pendingCheck.rows.length > 0;
+
+    return res.json({
+      hasGroup,
+      hasPendingInvitation
+    });
 
   } catch (err) {
     console.error('Error checking group status:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Get pending invitations for a user
 exports.getInvitations = async (req, res) => {
