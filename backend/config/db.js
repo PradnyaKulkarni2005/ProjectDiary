@@ -7,6 +7,7 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false, 
   },
+  keepAlive: true,
 });
 
 module.exports = pool;

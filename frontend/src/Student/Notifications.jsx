@@ -6,8 +6,7 @@ import {
 } from '../api';
 import './Notifications.css';
 
-
-const Notifications = ({ currentUser }) => {
+const Notifications = ({ currentUser, onInviteAccepted }) => {
   const [notifications, setNotifications] = useState([]);
   const [memberStatuses, setMemberStatuses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +38,20 @@ const Notifications = ({ currentUser }) => {
       await respondToInvitation({ userId: currentUser.id, groupId, action });
       alert(`You have ${action} the invitation.`);
 
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.group_id === groupId ? { ...n, status: action } : n
-        )
-      );
+      // Remove this invitation from UI after response
+      setNotifications((prev) => prev.filter((inv) => inv.group_id !== groupId));
+
+      // Refresh member status
+      const memberStatusData = await getGroupMemberStatuses(currentUser.id);
+      setMemberStatuses(memberStatusData.members || []);
+
+      // Notify dashboard to re-check group status
+      if (action === 'accepted' && typeof onInviteAccepted === 'function') {
+        onInviteAccepted();
+      }
+
     } catch (err) {
+      console.error('Error responding to invitation:', err);
       alert(err.message || 'Error updating status');
     }
   };
@@ -55,7 +62,7 @@ const Notifications = ({ currentUser }) => {
     <div className="notification-container">
       <h2>Group Notifications</h2>
 
-      {/* Invitations for members */}
+      {/* Invitations received */}
       {notifications.length > 0 && (
         <>
           <h3>Invitations Received</h3>
@@ -76,7 +83,7 @@ const Notifications = ({ currentUser }) => {
         </>
       )}
 
-      {/* Leader's view */}
+      {/* If user is leader, show group members */}
       {memberStatuses.length > 0 && (
         <>
           <h3>Group Members' Responses</h3>
@@ -101,6 +108,7 @@ const Notifications = ({ currentUser }) => {
         </>
       )}
 
+      {/* Fallback message */}
       {notifications.length === 0 && memberStatuses.length === 0 && (
         <p>No invitations or group members found.</p>
       )}
