@@ -19,6 +19,12 @@ exports.register = async (req, res) => {
         return res.status(403).json({ message: 'Email not found in student records' });
       }
     }
+    if(role == 'Coordinator'){
+      const coordinator = await db.query('SELECT * FROM coordinators WHERE email = $1', [email]);
+      if(coordinator.rows.length === 0){
+        return res.status(403).json({ message: 'Email not found in coordinator records' });
+      }
+    }
 
     // Proceed to hash password and register
     const hashedPassword = await bcrypt.hash(password, 10);

@@ -80,3 +80,24 @@ export const getGroupMemberStatuses = async (leaderId) => {
     throw error.response?.data?.message || 'Failed to get group member statuses';
   }
 };
+// ✅ Send Notification
+export const sendNotification = async (notificationData) => {
+  try {
+    const response = await API.post('/notifications/send', notificationData);
+    return response.data;
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    throw error.response?.data?.message || 'Failed to send notification';
+  }
+};
+
+// ✅ Fetch Received Notifications (for a specific user)
+export const fetchNotificationsForUser = async (userId) => {
+  try {
+    const response = await API.get(`/notifications/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    throw error.response?.data?.message || 'Failed to fetch notifications';
+  }
+};

@@ -7,7 +7,7 @@ import CreateGroup from './CreateGroup';
 import Notifications from './Notifications';
 import { useNavigate } from 'react-router-dom';
 import { checkUserGroupStatus } from '../api';
-
+import CoordinatorNotifications from './CoordinatorNotifications';
 const fullMenuItems = [
   'Activity Sheet',
   'Meetings',
@@ -55,33 +55,46 @@ export default function StudentDashboard() {
     navigate('/login');
   };
 
-  const renderComponent = () => {
-    if (loading) return <div>Loading...</div>;
+ // Make sure this is imported at the top
 
-    if (!groupExists) {
-      switch (selectedMenu) {
-        case 'Create Group':
-          return <CreateGroup />;
-        case 'Notifications':
-          return <Notifications currentUser={currentUser} />;
-        default:
-          return <div>Select a section from the menu.</div>;
-      }
-    }
+const renderComponent = () => {
+  if (loading) return <div>Loading...</div>;
 
+  if (!groupExists) {
     switch (selectedMenu) {
-      case 'Activity Sheet':
-        return <ActivitySheet />;
-      case 'List Of Publications':
-        return <ListOfPublications />;
-      case 'Patents':
-        return <Patents />;
+      case 'Create Group':
+        return <CreateGroup />;
       case 'Notifications':
-        return <Notifications currentUser={currentUser} />;
+        return (
+          <>
+            <Notifications currentUser={currentUser} />
+            <CoordinatorNotifications userId={userId} />
+          </>
+        );
       default:
         return <div>Select a section from the menu.</div>;
     }
-  };
+  }
+
+  switch (selectedMenu) {
+    case 'Activity Sheet':
+      return <ActivitySheet />;
+    case 'List Of Publications':
+      return <ListOfPublications />;
+    case 'Patents':
+      return <Patents />;
+    case 'Notifications':
+      return (
+        <>
+          <Notifications currentUser={currentUser} />
+          <CoordinatorNotifications userId={userId} />
+        </>
+      );
+    default:
+      return <div>Select a section from the menu.</div>;
+  }
+};
+
 
   return (
     <div className="dashboard-container">

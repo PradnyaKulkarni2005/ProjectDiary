@@ -158,3 +158,18 @@
     font-size: 20px;
   }
 }
+
+.inputForm select[multiple] {
+  height: 120px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.inputForm option {
+  padding: 6px;
+}
+
+.swal2-popup {
+  font-size: 1rem !important;
+}

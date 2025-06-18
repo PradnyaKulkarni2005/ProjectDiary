@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import CoordinatorDashboard from './pages/CoordinatorDashboard';
+// import SupabaseTestPage from './pages/Supabase'; // fix path if needed
 
 import Rubric1 from './pages/Rubric1';
 import Rubric2 from './pages/Rubric2';
@@ -26,7 +27,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login/*" element={<LoginPage />} />
         
-        <Route path="/dashboard/coordinator" element={<CoordinatorDashboard />} />
+        <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/rubrics1" element={<Rubric1 />} />
         <Route path="/rubrics2" element={<Rubric2 />} />
@@ -38,6 +39,8 @@ function App() {
         <Route path="/guide-dashboard" element={<GuideDashboard />} />
         <Route path="/project-dashboard" element={<ProjectGroupPage />} />
         <Route path="/register" element={<Registeration />} />
+        {/* <Route path="/test-supabase" element={<SupabaseTestPage />} /> */}
+
         {/* Add more routes as needed */}
       </Routes>
     </>

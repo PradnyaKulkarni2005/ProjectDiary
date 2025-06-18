@@ -1,15 +1,35 @@
-// This is the main server file for the ProjectDiary application
-// It sets up the Express server and connects to the Mysql database
+// 🔥 Handle uncaught exceptions & promise rejections
+process.on('uncaughtException', (err) => {
+  console.error('🔥 Uncaught Exception:', err.message);
+  console.error(err.stack);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Promise Rejection:', err.message);
+  console.error(err.stack);
+});
+
+// 🌐 Imports
 const express = require('express');
+const cors = require('cors');
 const app = express();
+
+// 📦 Routes
 const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
-// Middleware to handle JSON requests
-const cors = require('cors');
+const coordNotificationRoutes = require('./routes/coordNotificationRoutes'); // Rename for clarity (optional)
+
+// 🌍 Middleware
 app.use(cors());
 app.use(express.json());
 
+// 🚦 API Endpoints
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/notifications', coordNotificationRoutes);
+app.use('/api/notifications', require('./routes/coordNotificationRoutes'));
 
-app.listen(5000, () => console.log('Server running on port 5000'));
+
+// 🚀 Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
