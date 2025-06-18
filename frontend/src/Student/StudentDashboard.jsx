@@ -68,7 +68,7 @@ const renderComponent = () => {
         return (
           <>
             <Notifications currentUser={currentUser} />
-            <CoordinatorNotifications userId={userId} />
+            <CoordinatorNotifications userId={currentUser} />
           </>
         );
       default:

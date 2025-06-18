@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import "./CoordinatorDashboard.css";
 import { FaBell, FaUsers, FaEnvelope, FaHome } from "react-icons/fa";
 import SendNotificationForm from "../components/SendNotificationForm";
 
 const CoordinatorDashboard = () => {
-  const [selectedTab, setSelectedTab] = useState("home"); // "home", "updates", "notifications", "sendNotification"
+  const [selectedTab, setSelectedTab] = useState("home");
+  const navigate = useNavigate(); // ✅ Initialize useNavigate
 
   const guides = [
     { id: "g1", name: "Guide One" },
@@ -17,10 +19,14 @@ const CoordinatorDashboard = () => {
   const handleSendNotification = (notification) => {
     console.log("Notification to save:", notification);
     alert("Notification sent!");
-    setSelectedTab("home"); // Redirect back to home after sending
+    setSelectedTab("home");
   };
 
-  // Render center content based on selected tab
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login"); // ✅ Navigate to login after logout
+  };
+
   const renderContent = () => {
     switch (selectedTab) {
       case "home":
@@ -80,6 +86,10 @@ const CoordinatorDashboard = () => {
           style={{ marginTop: "auto" }}
         >
           <FaBell /> Send Notification
+        </button>
+
+        <button className="logout-button" onClick={handleLogout}>
+          Logout
         </button>
       </aside>
 

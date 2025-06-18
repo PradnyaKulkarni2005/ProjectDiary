@@ -1,35 +1,34 @@
-// CoordinatorNotifications.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getNotificationsByUserId } from '../api';
+import './CoordinatorNotifications.css'; // <-- Add this import
 
 const CoordinatorNotifications = ({ userId }) => {
-const [notifications, setNotifications] = useState([]); // default to array
-
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-  const fetchNotifications = async () => {
-    try {
-      const res = await axios.get(`/api/notifications/${userId}`);
-      const data = Array.isArray(res.data) ? res.data : [];
-      setNotifications(data);
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
-      setNotifications([]); // fallback to empty array
-    }
-  };
+    const fetchNotifications = async () => {
+      try {
+        const data = await getNotificationsByUserId(userId);
+        setNotifications(data);
+        console.log("Notifications set:", data);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+        setNotifications([]);
+      }
+    };
 
-  fetchNotifications();
-}, [userId]);
+    fetchNotifications();
+  }, [userId]);
 
   return (
-    <div style={{ padding: '1rem' }}>
+    <div className="notifications-container">
       <h3>Messages from Coordinator</h3>
       {notifications.length === 0 ? (
         <p>No messages yet.</p>
       ) : (
-        <ul>
+        <ul className="notification-list">
           {notifications.map((notif) => (
-            <li key={notif.id} style={{ marginBottom: '1rem', borderBottom: '1px solid #ccc' }}>
+            <li key={notif.id} className="notification-card">
               <p><strong>From:</strong> Coordinator #{notif.sender_id}</p>
               <p><strong>Message:</strong> {notif.message}</p>
               <p><em>{new Date(notif.timestamp).toLocaleString()}</em></p>
