@@ -1,30 +1,57 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./CoordinatorDashboard.css";
-import { FaBell, FaUsers, FaEnvelope, FaHome } from "react-icons/fa";
+import { FaBell, FaUsers, FaEnvelope, FaHome, FaTrash } from "react-icons/fa";
 import SendNotificationForm from "../components/SendNotificationForm";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const CoordinatorDashboard = () => {
   const [selectedTab, setSelectedTab] = useState("home");
-  const navigate = useNavigate(); // ✅ Initialize useNavigate
+  const [sentNotifications, setSentNotifications] = useState([]);
+  const navigate = useNavigate();
 
-  const guides = [
-    { id: "g1", name: "Guide One" },
-    { id: "g2", name: "Guide Two" },
-    { id: "g3", name: "Guide Three" },
-  ];
+  const senderId = parseInt(localStorage.getItem("userId"), 10);
 
-  const loggedInCoordinatorId = "c123";
+  const fetchSentNotifications = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/notifications/sent/${senderId}`);
+      setSentNotifications(res.data);
+    } catch (err) {
+      console.error("Error fetching sent notifications:", err);
+    }
+  };
 
-  const handleSendNotification = (notification) => {
-    console.log("Notification to save:", notification);
-    alert("Notification sent!");
-    setSelectedTab("home");
+  useEffect(() => {
+    if (selectedTab === "sentNotifications") {
+      fetchSentNotifications();
+    }
+  }, [selectedTab]);
+
+  const handleDeleteNotification = async (notificationId) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will delete the notification for all receivers!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await axios.delete(`http://localhost:5000/api/notifications/delete/${notificationId}`);
+        Swal.fire("Deleted!", "Notification has been deleted.", "success");
+        fetchSentNotifications(); // Refresh
+      } catch (err) {
+        console.error("Delete error:", err);
+        Swal.fire("Error", "Failed to delete notification.", "error");
+      }
+    }
   };
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login"); // ✅ Navigate to login after logout
+    navigate("/login");
   };
 
   const renderContent = () => {
@@ -50,15 +77,41 @@ const CoordinatorDashboard = () => {
             <p>Here are the notifications sent to you.</p>
           </div>
         );
+      case "sentNotifications":
+        return (
+          <div className="welcome-box">
+            <h2>Sent Notifications</h2>
+            {sentNotifications.length === 0 ? (
+              <p>No notifications sent yet.</p>
+            ) : (
+              <ul className="notification-list">
+                {sentNotifications.map((n) => (
+                  <li key={n.id} className="notification-item">
+                    <div>
+                      <strong>To:</strong> {n.receiver_name} <br />
+                      <strong>Message:</strong> {n.message} <br />
+                      <strong>Time:</strong> {new Date(n.created_at).toLocaleString()}
+                    </div>
+                    <button
+                      className="delete-button"
+                      onClick={() => handleDeleteNotification(n.id)}
+                    >
+                      <FaTrash style={{ marginRight: "5px" }} />
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
       case "sendNotification":
         return (
           <div className="form-wrapper">
             <h2>Send Notification</h2>
             <SendNotificationForm
-              guides={guides}
-              senderId={loggedInCoordinatorId}
+              senderId={senderId}
               onClose={() => setSelectedTab("home")}
-              onSend={handleSendNotification}
             />
           </div>
         );
@@ -78,6 +131,7 @@ const CoordinatorDashboard = () => {
           <li onClick={() => setSelectedTab("home")}><FaHome /> Home</li>
           <li onClick={() => setSelectedTab("updates")}><FaUsers /> Group Updates</li>
           <li onClick={() => setSelectedTab("notifications")}><FaEnvelope /> Notifications Received</li>
+          <li onClick={() => setSelectedTab("sentNotifications")}><FaEnvelope /> Sent Notifications</li>
         </ul>
 
         <button
@@ -93,9 +147,7 @@ const CoordinatorDashboard = () => {
         </button>
       </aside>
 
-      <main className="main-content">
-        {renderContent()}
-      </main>
+      <main className="main-content">{renderContent()}</main>
     </div>
   );
 };

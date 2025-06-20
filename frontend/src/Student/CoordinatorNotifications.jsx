@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getNotificationsByUserId } from '../api';
-import './CoordinatorNotifications.css'; // <-- Add this import
+import './CoordinatorNotifications.css';
 
 const CoordinatorNotifications = ({ userId }) => {
   const [notifications, setNotifications] = useState([]);
@@ -29,9 +29,15 @@ const CoordinatorNotifications = ({ userId }) => {
         <ul className="notification-list">
           {notifications.map((notif) => (
             <li key={notif.id} className="notification-card">
-              <p><strong>From:</strong> Coordinator #{notif.sender_id}</p>
+              <p><strong>From:</strong> {notif.coordinator_name || 'Unknown Coordinator'}</p>
               <p><strong>Message:</strong> {notif.message}</p>
-              <p><em>{new Date(notif.timestamp).toLocaleString()}</em></p>
+              <p><em>{new Date(notif.timestamp).toLocaleString('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  dateStyle: 'medium',
+  timeStyle: 'short'
+})}</em>
+</p>
+
             </li>
           ))}
         </ul>

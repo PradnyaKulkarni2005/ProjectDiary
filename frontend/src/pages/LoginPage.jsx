@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { loginUser } from '../api';
 import './LoginPage.css';
+import Swal from 'sweetalert2';
+
 
 function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -46,7 +48,17 @@ function LoginPage() {
     localStorage.setItem('userId', userId);
     localStorage.setItem('role', userRole);
 
-    alert('Login successful!');
+    Swal.fire({
+  icon: 'success',
+  title: 'Login Successful',
+  text: `Welcome ${email}!`,
+  showConfirmButton: false,
+  timer: 1800,
+  timerProgressBar: true,
+  toast: true,
+  position: 'top-end'
+});
+
     navigate(`/${userRole}-dashboard`);
   } catch (err) {
     const message = err?.response?.data?.message || err?.message || 'Login failed. Please try again.';
