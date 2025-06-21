@@ -29,15 +29,19 @@ const CoordinatorNotifications = ({ userId }) => {
         <ul className="notification-list">
           {notifications.map((notif) => (
             <li key={notif.id} className="notification-card">
-              <p><strong>From:</strong> {notif.coordinator_name || 'Unknown Coordinator'}</p>
+              <p><strong>From:</strong> {notif.sender_name || 'Unknown Coordinator'}</p>
               <p><strong>Message:</strong> {notif.message}</p>
-              <p><em>{new Date(notif.timestamp).toLocaleString('en-IN', {
-  timeZone: 'Asia/Kolkata',
-  dateStyle: 'medium',
-  timeStyle: 'short'
-})}</em>
-</p>
-
+              <p>
+                <em>
+                  {notif.created_at
+                    ? new Date(notif.created_at).toLocaleString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })
+                    : 'Invalid Date'}
+                </em>
+              </p>
             </li>
           ))}
         </ul>

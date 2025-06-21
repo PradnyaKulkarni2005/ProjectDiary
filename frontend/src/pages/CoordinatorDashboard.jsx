@@ -81,34 +81,29 @@ const CoordinatorDashboard = () => {
         return (
           <div className="welcome-box">
             <h2>Sent Notifications</h2>
-            {sentNotifications.length === 0 ? (
-              <p>No notifications sent yet.</p>
-            ) : (
-              <ul className="notification-list">
-                {sentNotifications.map((n) => (
-                  <li key={n.id} className="notification-item">
-                    <div>
-                      <strong>To:</strong> {n.receiver_name} <br />
-                      <strong>Message:</strong> {n.message} <br />
-                      <strong>Time:</strong> {new Date(n.created_at).toLocaleString()}
-                    </div>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteNotification(n.id)}
-                    >
-                      <FaTrash style={{ marginRight: "5px" }} />
-                      Delete
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {sentNotifications.map((n) => (
+  <li key={n.id} className="notification-item">
+    <div className="notification-details">
+      <p><strong>To:</strong> {n.receiver_name}</p>
+      <p><strong>Message:</strong> {n.message}</p>
+      <p><strong>Time:</strong> {new Date(n.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+    </div>
+    <button
+      className="delete-button"
+      onClick={() => handleDeleteNotification(n.id)}
+      title="Delete notification"
+    >
+      <FaTrash />
+    </button>
+  </li>
+))}
+
           </div>
         );
       case "sendNotification":
         return (
-          <div className="form-wrapper">
-            <h2>Send Notification</h2>
+          <div>
+          
             <SendNotificationForm
               senderId={senderId}
               onClose={() => setSelectedTab("home")}

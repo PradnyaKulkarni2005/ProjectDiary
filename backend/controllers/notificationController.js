@@ -1,39 +1,89 @@
 const pool = require('../config/db');
 
-// ✅ Get users by role (with names + department from role table)
+// ✅ Format to Asia/Kolkata
+const formatIST = (utcDate) => {
+  const date = new Date(utcDate);
+  return date.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    hour12: true,
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+// ✅ Fetch sender's name from respective role table
+const getSenderDetails = async (senderId) => {
+  const result = await pool.query(`
+    SELECT 
+      COALESCE(c.name, g.name, h.name, s.name, u.email) AS sender_name
+    FROM users u
+    LEFT JOIN coordinators c ON c.email = u.email
+    LEFT JOIN guides g ON g.email = u.email
+    LEFT JOIN hod h ON h.email = u.email
+    LEFT JOIN student s ON s.email = u.email
+    WHERE u.id = $1
+  `, [senderId]);
+
+  return result.rows[0]?.sender_name || 'Unknown';
+};
+
+// ✅ Enrich notifications with sender name + formatted date
+const enrichWithSender = async (notifs, type) => {
+  return Promise.all(
+    notifs.map(async (n) => {
+      const senderName = await getSenderDetails(n.sender_id);
+      return {
+        ...n,
+        sender_name: senderName,
+        created_at: formatIST(n.created_at),
+        type
+      };
+    })
+  );
+};
+
+// ✅ Get users by role and coordinator department
 exports.getUsersByRole = async (req, res) => {
-  const { role } = req.query;
+  const { role, coordinatorId } = req.query;
 
   try {
-    console.log("Fetching users for role:", role);
+    const deptResult = await pool.query(
+      `SELECT c.department
+       FROM coordinators c
+       JOIN users u ON u.email = c.email
+       WHERE u.id = $1`,
+      [coordinatorId]
+    );
 
-    // Role-based table and field mapping
+    if (deptResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Coordinator not found' });
+    }
+
+    const coordinatorDept = deptResult.rows[0].department;
+
     let table = '';
     switch (role) {
       case 'student':
         table = 'student';
         break;
-      case 'coordinator':
-        table = 'coordinators';
-        break;
-      case 'guide':
-        table = 'guides';
-        break;
-      case 'hod':
-        table = 'hods';
-        break;
       default:
         return res.status(400).json({ message: 'Invalid role' });
     }
+console.log("Coordinator dept:", coordinatorDept);
+console.log("Role:", role);
 
     const query = `
-      SELECT u.id, u.email, r.name, r.department
-      FROM users u
-      JOIN ${table} r ON u.email = r.email
-      WHERE u.role = $1
-    `;
+  SELECT u.id, u.email, r.name, r.department AS dept
+  FROM users u
+  JOIN ${table} r ON u.email = r.email
+  WHERE u.role = $1 AND TRIM(LOWER(r.department)) = TRIM(LOWER($2))
+`;
 
-    const result = await pool.query(query, [role]);
+
+    const result = await pool.query(query, [role, coordinatorDept]);
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('❌ Fetch Users By Role Error:', error);
@@ -41,80 +91,72 @@ exports.getUsersByRole = async (req, res) => {
   }
 };
 
-// ✅ Send notification to selected users
-// ✅ Send notification to selected users
+// ✅ Send notification (to all OR selected users)
 exports.sendNotification = async (req, res) => {
-  const { senderId, receiverIds, message } = req.body;
+  const { senderId, receiverIds, message, isForAll } = req.body;
 
-  console.log('🔥 Request Body:', req.body);
-
-  if (!receiverIds || !Array.isArray(receiverIds) || receiverIds.length === 0 || !message.trim()) {
-    return res.status(400).json({ error: 'Receiver(s) and message required' });
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: 'Message is required' });
   }
 
   try {
-    const query = `
-      INSERT INTO coord_notifications (sender_id, receiver_id, message, created_at)
-      VALUES ($1, $2, $3, NOW() AT TIME ZONE 'Asia/Kolkata')
-      RETURNING *;
-    `;
-
-    const notifications = [];
-
-    for (const receiverId of receiverIds) {
-      const parsedSenderId = parseInt(senderId, 10);
-      const parsedReceiverId = parseInt(receiverId, 10);
-
-      if (isNaN(parsedSenderId) || isNaN(parsedReceiverId)) {
-        console.log("❌ Skipping invalid ID: sender =", senderId, "receiver =", receiverId);
-        continue;
+    if (isForAll === true) {
+      await pool.query(
+        `INSERT INTO broadcast_notifications (sender_id, message, is_for_all, created_at)
+         VALUES ($1, $2, TRUE, NOW())`,
+        [senderId, message]
+      );
+    } else {
+      if (!Array.isArray(receiverIds) || receiverIds.length === 0) {
+        return res.status(400).json({ error: 'No receivers selected' });
       }
 
-      const values = [parsedSenderId, parsedReceiverId, message];
-      const result = await pool.query(query, values);
-      notifications.push(result.rows[0]);
+      const insertQuery = `
+        INSERT INTO user_notifications (user_id, sender_id, message, created_at)
+        VALUES ${receiverIds.map((_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`).join(',')}
+      `;
+      const values = receiverIds.flatMap(id => [id, senderId, message, new Date()]);
+      await pool.query(insertQuery, values);
     }
 
-    if (notifications.length === 0) {
-      return res.status(400).json({ error: 'No valid recipients. Notification not sent.' });
-    }
-
-    res.status(201).json({ message: 'Notifications sent successfully', notifications });
+    res.status(201).json({ message: 'Notification sent successfully' });
   } catch (err) {
-    console.error('🔥 Notification Error:', err);
-    res.status(500).json({ error: 'Failed to send notifications' });
+    console.error('❌ Send Notification Error:', err.stack);
+    res.status(500).json({ error: 'Failed to send notification' });
   }
 };
 
-
-// ✅ Get notifications received by a user
+// ✅ Get all notifications for a specific user
 exports.getNotificationsForUser = async (req, res) => {
-  const { receiverId } = req.params;
+  const userId = req.params.receiverId;
 
   try {
-    const parsedId = parseInt(receiverId);
-    if (isNaN(parsedId)) {
-      return res.status(400).json({ error: 'Invalid receiver ID' });
-    }
+    // Broadcasts sent to all
+    const broadcastResult = await pool.query(`
+      SELECT id, sender_id, message, created_at
+      FROM broadcast_notifications
+      WHERE is_for_all = TRUE
+    `);
 
-    const result = await pool.query(
-      `SELECT n.id, n.message, n.created_at AS timestamp,
-              COALESCE(c.name, 'Unknown') AS coordinator_name
-       FROM coord_notifications n
-       JOIN users u ON n.sender_id = u.id
-       LEFT JOIN coordinators c ON u.email = c.email
-       WHERE n.receiver_id = $1
-       ORDER BY n.created_at DESC`,
-      [parsedId]
-    );
+    // Direct user notifications
+    const directResult = await pool.query(`
+      SELECT id, sender_id, message, created_at
+      FROM user_notifications
+      WHERE user_id = $1
+    `, [userId]);
 
-    res.status(200).json(result.rows);
+    const broadcast = await enrichWithSender(broadcastResult.rows, 'broadcast');
+    const direct = await enrichWithSender(directResult.rows, 'direct');
+
+    const all = [...broadcast, ...direct].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    res.status(200).json(all);
   } catch (error) {
-    console.error('Fetch Notification Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Fetch Notifications Error:", error);
+    res.status(500).json({ error: "Server error fetching notifications" });
   }
 };
-// ✅ Get sent notifications by coordinator
+
+// ✅ Get notifications sent by coordinator
 exports.getSentNotifications = async (req, res) => {
   const { senderId } = req.params;
 
@@ -125,31 +167,47 @@ exports.getSentNotifications = async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT 
+      `
+      (
+        SELECT 
           n.id, 
           n.message, 
           n.created_at,
+          'All students' AS receiver_name
+        FROM broadcast_notifications n
+        WHERE n.sender_id = $1 AND n.is_for_all = TRUE
+      )
+      UNION
+      (
+        SELECT 
+          un.id, 
+          un.message, 
+          un.created_at,
           COALESCE(s.name, g.name, h.name, c.name, u.email) AS receiver_name
-       FROM coord_notifications n
-       JOIN users u ON u.id = n.receiver_id
-       LEFT JOIN student s ON s.email = u.email
-       LEFT JOIN guides g ON g.email = u.email
-       LEFT JOIN hod h ON h.email = u.email
-       LEFT JOIN coordinators c ON c.email = u.email
-       WHERE n.sender_id = $1
-       ORDER BY n.created_at DESC`,
+        FROM user_notifications un
+        JOIN users u ON u.id = un.user_id
+        LEFT JOIN student s ON s.email = u.email
+        LEFT JOIN guides g ON g.email = u.email
+        LEFT JOIN hod h ON h.email = u.email
+        LEFT JOIN coordinators c ON c.email = u.email
+        WHERE un.sender_id = $1
+      )
+      ORDER BY created_at DESC
+      `,
       [parsedId]
     );
 
-    res.status(200).json(result.rows);
+    res.status(200).json(result.rows.map(r => ({
+      ...r,
+      created_at: formatIST(r.created_at)
+    })));
   } catch (error) {
     console.error("Fetch Sent Notifications Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
-// ✅ Delete a notification by ID
+// ✅ Delete notification
 exports.deleteNotification = async (req, res) => {
   const { id } = req.params;
 
@@ -160,7 +218,7 @@ exports.deleteNotification = async (req, res) => {
     }
 
     const result = await pool.query(
-      `DELETE FROM coord_notifications WHERE id = $1 RETURNING *;`,
+      `DELETE FROM user_notifications WHERE id = $1 RETURNING *;`,
       [parsedId]
     );
 

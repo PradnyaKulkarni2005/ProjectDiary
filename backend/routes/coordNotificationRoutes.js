@@ -4,15 +4,17 @@ const {
   sendNotification,
   getNotificationsForUser,
   getUsersByRole,
-   getSentNotifications,     // ⬅️ NEW
+  getSentNotifications,
   deleteNotification 
 } = require('../controllers/notificationController');
 
-// ⛳️ Make sure this is above the dynamic param route
+// ⛳️ Specific routes first
 router.get('/users-by-role', getUsersByRole);
 router.post('/send', sendNotification);
+router.get('/sent/:senderId', getSentNotifications);       // ✅ specific
+router.delete('/delete/:id', deleteNotification);
+
+// ⛳️ Dynamic route LAST
 router.get('/:receiverId', getNotificationsForUser);
-router.get('/sent/:senderId', getSentNotifications);       // ⬅️ GET all sent notifications
-router.delete('/delete/:id', deleteNotification); 
 
 module.exports = router;

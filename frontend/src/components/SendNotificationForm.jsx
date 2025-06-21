@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "../pages/LoginPage.css";
+import "./SendNotificationForm.css";
 
 const SendNotificationForm = ({ senderId, onClose }) => {
   const [roles] = useState(["student", "guide", "coordinator", "hod"]);
@@ -11,94 +11,78 @@ const SendNotificationForm = ({ senderId, onClose }) => {
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
-useEffect(() => {
-  const fetchUsers = async () => {
-    if (!selectedRole) return;
-    try {
-      const response = await axios.get(`http://localhost:5000/api/notifications/users-by-role?role=${selectedRole}`);
-      if (Array.isArray(response.data)) {
-        setUsers(response.data);
-        setFilteredUsers(response.data);
-      } else {
-        console.error("Unexpected data:", response.data);
+  const [isForAll, setIsForAll] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!selectedRole) return;
+      try {
+        const response = await axios.get("http://localhost:5000/api/notifications/users-by-role", {
+          params: { role: selectedRole, coordinatorId: senderId },
+        });
+        if (Array.isArray(response.data)) {
+          setUsers(response.data);
+          setFilteredUsers(response.data);
+        } else {
+          setUsers([]);
+          setFilteredUsers([]);
+        }
+      } catch (error) {
+        Swal.fire("Error", "Failed to fetch users.", "error");
         setUsers([]);
         setFilteredUsers([]);
       }
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      Swal.fire("Error", "Failed to fetch users.", "error");
-      setUsers([]);
-      setFilteredUsers([]);
-    }
-  };
-  fetchUsers();
-}, [selectedRole]);
-
+    };
+    fetchUsers();
+  }, [selectedRole, senderId]);
 
   useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredUsers(users);
-    } else {
-      const lower = searchTerm.toLowerCase();
-      setFilteredUsers(
-        users.filter(
-          (u) =>
-            u.name?.toLowerCase().includes(lower) ||
-            u.email?.toLowerCase().includes(lower) ||
-            u.dept?.toLowerCase().includes(lower)
-        )
-      );
-    }
+    const lower = searchTerm.toLowerCase();
+    setFilteredUsers(
+      users.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(lower) ||
+          u.email?.toLowerCase().includes(lower) ||
+          u.dept?.toLowerCase().includes(lower)
+      )
+    );
   }, [searchTerm, users]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const cleanReceiverIds = selectedUserIds
-    .map((id) => parseInt(id, 10))
-    .filter((id) => !isNaN(id)); // ✅ filters invalid ones
-
-  if (cleanReceiverIds.length === 0 || !message.trim()) {
-    Swal.fire("Error", "Please select valid users and enter a message.", "error");
-    return;
-  }
-
-  try {
-    await axios.post("http://localhost:5000/api/notifications/send", {
-      senderId: parseInt(localStorage.getItem("userId"), 10),
-      receiverIds: cleanReceiverIds,
-      message,
-    });
-
-    Swal.fire("Success", "Notification sent!", "success");
-    onClose();
-  } catch (error) {
-    console.error("❌ Failed to send:", error);
-    Swal.fire("Error", "Failed to send notification.", "error");
-  }
-};
-
-  const toggleSelectAll = () => {
-    if (selectedUserIds.length === filteredUsers.length) {
-      setSelectedUserIds([]);
-    } else {
-      setSelectedUserIds(filteredUsers.map((u) => String(u.id)));
+    e.preventDefault();
+    const cleanIds = selectedUserIds.map((id) => parseInt(id)).filter((id) => !isNaN(id));
+    if (!message.trim() || (!isForAll && cleanIds.length === 0)) {
+      Swal.fire("Error", "Please select valid users and enter a message.", "error");
+      return;
+    }
+    try {
+      await axios.post("http://localhost:5000/api/notifications/send", {
+        senderId: parseInt(localStorage.getItem("userId"), 10),
+        receiverIds: cleanIds,
+        message,
+        isForAll,
+      });
+      Swal.fire("Success", "Notification sent!", "success");
+      onClose();
+    } catch (error) {
+      Swal.fire("Error", "Failed to send notification.", "error");
     }
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit} style={{ maxWidth: "600px", margin: "0 auto" }}>
-      <h3>Send Notification</h3>
+    <form className="notification-form" onSubmit={handleSubmit}>
+      <h2>Send Notification</h2>
 
-      <div className="inputForm">
-        <label style={{ marginRight: "10px" }}>Select Role</label>
+      <div className="form-group">
+        <label htmlFor="role">Select Role</label>
         <select
-          className="input"
+          id="role"
           value={selectedRole}
           onChange={(e) => {
             setSelectedRole(e.target.value);
             setSelectedUserIds([]);
             setSearchTerm("");
+            setIsForAll(false);
           }}
           required
         >
@@ -113,94 +97,72 @@ useEffect(() => {
 
       {selectedRole && (
         <>
-          <div className="inputForm" style={{ flexDirection: "column", alignItems: "flex-start" }}>
-            <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label>Users</label>
-              <button
-                type="button"
-                onClick={toggleSelectAll}
-                className="button-submit"
-                style={{ width: "auto", padding: "4px 10px", fontSize: "12px", margin: "0" }}
-              >
-                {selectedUserIds.length === filteredUsers.length ? "Deselect All" : "Select All"}
-              </button>
-            </div>
+          <div className="form-group checkbox-group">
+            <input
+              type="checkbox"
+              id="sendToAll"
+              checked={isForAll}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setIsForAll(checked);
+                setSelectedUserIds(checked ? filteredUsers.map((u) => String(u.id)) : []);
+              }}
+            />
+            <label htmlFor="sendToAll">Send to all students?</label>
+          </div>
 
+          <div className="form-group">
             <input
               type="text"
               placeholder="Search by name, email or dept..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: "100%",
-                margin: "10px 0",
-                padding: "8px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-              }}
+              className="search-box"
             />
-
-            <div className="checkbox-list">
-              {filteredUsers.length === 0 ? (
-                <p style={{ margin: 0 }}>No users found.</p>
-              ) : (
-                filteredUsers.map((user) => (
-                  <label
-                    key={user.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "4px 0",
-                      gap: "8px",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      value={user.id}
-                      checked={selectedUserIds.includes(String(user.id))}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (e.target.checked) {
-                          setSelectedUserIds([...selectedUserIds, value]);
-                        } else {
-                          setSelectedUserIds(selectedUserIds.filter((id) => id !== value));
-                        }
-                      }}
-                    />
-                    <span>{user.name || "Unnamed"} ({user.email}) {user.dept && `- ${user.dept}`}</span>
-                  </label>
-                ))
-              )}
-            </div>
           </div>
 
-          <div className="inputForm" style={{ marginTop: "1rem", height: "120px" }}>
+          <div className="user-list">
+            {filteredUsers.length === 0 ? (
+              <p className="no-users">No users found.</p>
+            ) : (
+              filteredUsers.map((user) => (
+                <div className="user-item" key={user.id}>
+                  <input
+                    type="checkbox"
+                    value={user.id}
+                    checked={selectedUserIds.includes(String(user.id))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const updated = e.target.checked
+                        ? [...selectedUserIds, value]
+                        : selectedUserIds.filter((id) => id !== value);
+                      setSelectedUserIds(updated);
+                      if (updated.length !== filteredUsers.length) {
+                        setIsForAll(false);
+                      }
+                    }}
+                  />
+                  <label>{user.name} ({user.email}) {user.dept && `- ${user.dept}`}</label>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="form-group">
             <textarea
-              className="input"
-              rows="4"
               placeholder="Enter your message here"
+              rows="4"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               required
-              style={{ resize: "none", paddingTop: "12px" }}
             />
           </div>
         </>
       )}
 
-      <div className="flex-row" style={{ justifyContent: "space-between", marginTop: "1rem" }}>
-        <button type="submit" className="button-submit" style={{ width: "48%" }}>
-          Send
-        </button>
-        <button
-          type="button"
-          className="button-submit"
-          onClick={onClose}
-          style={{ backgroundColor: "#ef4444", width: "48%" }}
-        >
-          Cancel
-        </button>
+      <div className="button-group">
+        <button type="submit" className="btn primary">Send</button>
+        <button type="button" className="btn cancel" onClick={onClose}>Cancel</button>
       </div>
     </form>
   );
