@@ -7,7 +7,7 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false, // Required for Supabase SSL
   },
-  idleTimeoutMillis: 10000, // ✅ Close idle clients after 10s
+  idleTimeoutMillis: 30000, // ✅ Close idle clients after 10s
   connectionTimeoutMillis: 5000, // ✅ Fail fast on connection issues
   max: 10, // ✅ Max number of clients in the pool (adjust to stay within Supabase's limits)
 });

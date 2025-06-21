@@ -1,6 +1,6 @@
-// src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import './Home.css';
+import axios from 'axios';
 import bestproject1 from '../assets/bestproject1.jpeg';
 import bestproject2 from '../assets/bestproject2.jpeg';
 import bestproject3 from '../assets/bestproject3.jpeg';
@@ -17,21 +17,48 @@ const projects = [
 
 function HomePage() {
   const [current, setCurrent] = useState(0);
+  const [spotlightText, setSpotlightText] = useState("🚀 Welcome to Final Year Project Portal | PCCOE Pune | AY 2024–25");
 
   useEffect(() => {
-    const interval = setInterval(() => setCurrent((prev) => (prev + 1) % projects.length), 4000);
+    const interval = setInterval(() => {
+      setCurrent(prev => (prev + 1) % projects.length);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  const [openCard, setOpenCard] = useState(null);
-const toggleCard = (index) => {
-  setOpenCard(openCard === index ? null : index);
-};
+  useEffect(() => {
+  const fetchSpotlight = async () => {
+    console.log("📢 Fetching valid spotlights...");
+    try {
+      const res = await axios.get("http://localhost:5000/api/spotlight/valid");
+
+      if (res.data && Array.isArray(res.data.spotlights)) {
+        console.log("✅ Spotlights fetched from DB:", res.data.spotlights);
+
+        const allEntries = res.data.spotlights
+          .map(entry => entry.split("|")) // split combined content
+          .flat()
+          .map(text => text.trim()) // clean spaces
+          .filter(Boolean); // remove empty strings
+
+        const uniqueSet = new Set(allEntries); // remove duplicates
+        const uniqueTexts = Array.from(uniqueSet);
+
+        const finalText = uniqueTexts.join(" | ");
+        setSpotlightText("🚀 " + finalText);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching spotlight:", error);
+    }
+  };
+
+  fetchSpotlight();
+}, []);
 
   return (
     <div className="homepage-container">
       <div className="ticker">
-        <marquee>🚀 Welcome to Final Year Project Portal | PCCOE Pune | AY 2024–25</marquee>
+        <marquee>{spotlightText}</marquee>
       </div>
 
       <section className="hero-section">
@@ -53,38 +80,33 @@ const toggleCard = (index) => {
         </div>
       </section>
 
-     <section className="features-flip-section">
-  <h2>✨ Why Use This Portal?</h2>
-  <div className="flip-grid">
-    {[
-      {
-        front: "📑 Project Guidelines",
-        back: "Step-wise process and documentation templates for students and guides."
-      },
-      {
-        front: "📊 Rubrics Evaluation",
-        back: "Auto-calculated scores with rubrics alignment for unbiased grading."
-      },
-      {
-        front: "👨‍🏫 Central Collaboration",
-        back: "Faculty, mentors and students working on the same platform with updates."
-      }
-    ].map((item, index) => (
-      <div className="flip-card" key={index}>
-        <div className="flip-card-inner">
-          <div className="flip-card-front">
-            <h3>{item.front}</h3>
-            <p>Hover to view more</p>
-          </div>
-          <div className="flip-card-back">
-            <p>{item.back}</p>
-          </div>
+      <section className="features-flip-section">
+        <h2>✨ Why Use This Portal?</h2>
+        <div className="flip-grid">
+          {[{
+            front: "📑 Project Guidelines",
+            back: "Step-wise process and documentation templates for students and guides."
+          }, {
+            front: "📊 Rubrics Evaluation",
+            back: "Auto-calculated scores with rubrics alignment for unbiased grading."
+          }, {
+            front: "👨‍🏫 Central Collaboration",
+            back: "Faculty, mentors and students working on the same platform with updates."
+          }].map((item, index) => (
+            <div className="flip-card" key={index}>
+              <div className="flip-card-inner">
+                <div className="flip-card-front">
+                  <h3>{item.front}</h3>
+                  <p>Hover to view more</p>
+                </div>
+                <div className="flip-card-back">
+                  <p>{item.back}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    ))}
-  </div>
-</section>
-
+      </section>
 
       <section className="timeline-section">
         <h2>📆 Project Milestone Timeline</h2>

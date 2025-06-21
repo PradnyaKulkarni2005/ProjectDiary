@@ -101,12 +101,28 @@ exports.sendNotification = async (req, res) => {
 
   try {
     if (isForAll === true) {
+      // ✅ Get coordinator department
+      const deptRes = await pool.query(`
+        SELECT department FROM coordinators c
+        JOIN users u ON u.email = c.email
+        WHERE u.id = $1
+      `, [senderId]);
+
+      if (deptRes.rowCount === 0) {
+        return res.status(400).json({ error: 'Coordinator department not found' });
+      }
+
+      const dept = deptRes.rows[0].department;
+
+      // ✅ Send department-limited broadcast
       await pool.query(
-        `INSERT INTO broadcast_notifications (sender_id, message, is_for_all, created_at)
-         VALUES ($1, $2, TRUE, NOW())`,
-        [senderId, message]
-      );
+  `INSERT INTO broadcast_notifications (sender_id, message, is_for_all, created_at)
+   VALUES ($1, $2, TRUE, NOW())`,
+  [senderId, message]
+);
+
     } else {
+      // ✅ Only runs if isForAll === false
       if (!Array.isArray(receiverIds) || receiverIds.length === 0) {
         return res.status(400).json({ error: 'No receivers selected' });
       }
@@ -126,17 +142,24 @@ exports.sendNotification = async (req, res) => {
   }
 };
 
+
 // ✅ Get all notifications for a specific user
 exports.getNotificationsForUser = async (req, res) => {
-  const userId = req.params.receiverId;
+  const userId = parseInt(req.params.receiverId, 10);
+if (isNaN(userId)) {
+  return res.status(400).json({ error: 'Invalid user ID' });
+}
+
 
   try {
     // Broadcasts sent to all
     const broadcastResult = await pool.query(`
-      SELECT id, sender_id, message, created_at
-      FROM broadcast_notifications
-      WHERE is_for_all = TRUE
-    `);
+  SELECT b.id, b.sender_id, b.message, b.created_at
+  FROM broadcast_notifications b
+  JOIN coordinators c ON c.email = (SELECT email FROM users WHERE id = b.sender_id)
+  JOIN student s ON s.email = (SELECT email FROM users WHERE id = $1)
+  WHERE b.is_for_all = TRUE AND TRIM(LOWER(c.department)) = TRIM(LOWER(s.department))
+`, [userId]);
 
     // Direct user notifications
     const directResult = await pool.query(`

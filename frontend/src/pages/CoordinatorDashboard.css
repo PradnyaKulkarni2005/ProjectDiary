@@ -190,3 +190,68 @@
   margin: 0 auto;
   animation: scaleUp 0.6s ease;
 }
+
+.spotlight-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.spotlight-form label {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.spotlight-form textarea {
+  min-height: 100px;
+  resize: vertical;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.spotlight-form input[type="datetime-local"] {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.spotlight-form button {
+  padding: 10px 15px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.spotlight-form button:hover {
+  background-color: #005fa3;
+}
+.spotlight-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 500px;
+  margin-top: 1rem;
+}
+
+.spotlight-form textarea {
+  padding: 8px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.spotlight-form input[type="datetime-local"],
+.spotlight-form button {
+  padding: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}

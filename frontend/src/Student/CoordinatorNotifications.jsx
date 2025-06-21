@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { getNotificationsByUserId } from '../api';
 import './CoordinatorNotifications.css';
 
-const CoordinatorNotifications = ({ userId }) => {
+const CoordinatorNotifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const userId = parseInt(localStorage.getItem("userId"), 10);
+
 
   useEffect(() => {
     const fetchNotifications = async () => {

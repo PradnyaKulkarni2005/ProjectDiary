@@ -20,6 +20,10 @@ const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const coordNotificationRoutes = require('./routes/coordNotificationRoutes');
 const activityRoutes = require('./routes/activityRoutes');
+// 📦 Add this route import 👇
+const spotlightRoutes = require('./routes/spotlightRoutes');
+
+ // ✅ NEW
 
 // 🌍 Middleware
 app.use(cors());
@@ -30,6 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', coordNotificationRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/spotlight', spotlightRoutes);
 
 // 🚀 Start Server
 const PORT = process.env.PORT || 5000;

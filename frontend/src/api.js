@@ -159,3 +159,25 @@ export const getActivitySheet = async (sheetId) => {
     throw error.response?.data?.message || 'Failed to fetch activity sheet';
   }
 };
+
+// ✅ Get current valid spotlight (for homepage)
+export const getSpotlightContent = async () => {
+  try {
+    const response = await API.get('/spotlight');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching spotlight:', error);
+    return { message: '🚀 Welcome to Final Year Project Portal | PCCOE Pune | AY 2024–25' }; // fallback
+  }
+};
+
+// ✅ Coordinator: Add or update new spotlight
+export const updateSpotlightContent = async (spotlightData) => {
+  try {
+    const response = await API.post('/spotlight', spotlightData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating spotlight:', error);
+    throw error.response?.data?.message || 'Failed to update spotlight';
+  }
+};

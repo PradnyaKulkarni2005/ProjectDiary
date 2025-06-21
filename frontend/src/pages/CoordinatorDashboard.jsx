@@ -1,7 +1,8 @@
+// CoordinatorDashboard.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CoordinatorDashboard.css";
-import { FaBell, FaUsers, FaEnvelope, FaHome, FaTrash } from "react-icons/fa";
+import { FaBell, FaUsers, FaEnvelope, FaHome, FaTrash, FaLightbulb } from "react-icons/fa";
 import SendNotificationForm from "../components/SendNotificationForm";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -12,6 +13,9 @@ const CoordinatorDashboard = () => {
   const navigate = useNavigate();
 
   const senderId = parseInt(localStorage.getItem("userId"), 10);
+
+  const [spotlightText, setSpotlightText] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
 
   const fetchSentNotifications = async () => {
     try {
@@ -41,11 +45,29 @@ const CoordinatorDashboard = () => {
       try {
         await axios.delete(`http://localhost:5000/api/notifications/delete/${notificationId}`);
         Swal.fire("Deleted!", "Notification has been deleted.", "success");
-        fetchSentNotifications(); // Refresh
+        fetchSentNotifications();
       } catch (err) {
         console.error("Delete error:", err);
         Swal.fire("Error", "Failed to delete notification.", "error");
       }
+    }
+  };
+
+  const handleSpotlightSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("http://localhost:5000/api/spotlight/update", {
+  text: spotlightText,
+  expiry_at: expiryDate,
+});
+
+      Swal.fire("Success", "Spotlight updated!", "success");
+      setSpotlightText("");
+      setExpiryDate("");
+      setSelectedTab("home");
+    } catch (error) {
+      console.error("Error updating spotlight:", error);
+      Swal.fire("Error", "Could not update spotlight", "error");
     }
   };
 
@@ -82,32 +104,47 @@ const CoordinatorDashboard = () => {
           <div className="welcome-box">
             <h2>Sent Notifications</h2>
             {sentNotifications.map((n) => (
-  <li key={n.id} className="notification-item">
-    <div className="notification-details">
-      <p><strong>To:</strong> {n.receiver_name}</p>
-      <p><strong>Message:</strong> {n.message}</p>
-      <p><strong>Time:</strong> {new Date(n.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
-    </div>
-    <button
-      className="delete-button"
-      onClick={() => handleDeleteNotification(n.id)}
-      title="Delete notification"
-    >
-      <FaTrash />
-    </button>
-  </li>
-))}
-
+              <li key={n.id} className="notification-item">
+                <div className="notification-details">
+                  <p><strong>To:</strong> {n.receiver_name}</p>
+                  <p><strong>Message:</strong> {n.message}</p>
+                  <p><strong>Time:</strong> {new Date(n.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
+                </div>
+                <button className="delete-button" onClick={() => handleDeleteNotification(n.id)}>
+                  <FaTrash />
+                </button>
+              </li>
+            ))}
           </div>
         );
       case "sendNotification":
         return (
           <div>
-          
-            <SendNotificationForm
-              senderId={senderId}
-              onClose={() => setSelectedTab("home")}
-            />
+            <SendNotificationForm senderId={senderId} onClose={() => setSelectedTab("home")} />
+          </div>
+        );
+      case "spotlight":
+        return (
+          <div className="welcome-box">
+            <h2>Update Spotlight</h2>
+            <form onSubmit={handleSpotlightSubmit} className="spotlight-form">
+              <label htmlFor="spotlightText">Spotlight Text:</label>
+              <textarea
+                id="spotlightText"
+                value={spotlightText}
+                onChange={(e) => setSpotlightText(e.target.value)}
+                required
+              />
+              <label htmlFor="expiry">Expiry Date:</label>
+              <input
+                type="datetime-local"
+                id="expiry"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
+                required
+              />
+              <button type="submit">Submit</button>
+            </form>
           </div>
         );
       default:
@@ -127,19 +164,14 @@ const CoordinatorDashboard = () => {
           <li onClick={() => setSelectedTab("updates")}><FaUsers /> Group Updates</li>
           <li onClick={() => setSelectedTab("notifications")}><FaEnvelope /> Notifications Received</li>
           <li onClick={() => setSelectedTab("sentNotifications")}><FaEnvelope /> Sent Notifications</li>
+          <li onClick={() => setSelectedTab("spotlight")}><FaLightbulb /> Update Spotlight</li>
         </ul>
 
-        <button
-          className="send-button"
-          onClick={() => setSelectedTab("sendNotification")}
-          style={{ marginTop: "auto" }}
-        >
+        <button className="send-button" onClick={() => setSelectedTab("sendNotification")}>
           <FaBell /> Send Notification
         </button>
 
-        <button className="logout-button" onClick={handleLogout}>
-          Logout
-        </button>
+        <button className="logout-button" onClick={handleLogout}>Logout</button>
       </aside>
 
       <main className="main-content">{renderContent()}</main>
