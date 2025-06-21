@@ -9,5 +9,4 @@ const pool = new Pool({
   },
   keepAlive: true,
 });
-
 module.exports = pool;
