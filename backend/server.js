@@ -10,6 +10,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 // 🌐 Imports
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -17,8 +18,8 @@ const app = express();
 // 📦 Routes
 const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
-const coordNotificationRoutes = require('./routes/coordNotificationRoutes'); // Rename for clarity (optional)
-const activityRoutes = require('./routes/activityRoutes'); // Import activity routes if needed
+const coordNotificationRoutes = require('./routes/coordNotificationRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 // 🌍 Middleware
 app.use(cors());
@@ -28,9 +29,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', coordNotificationRoutes);
-app.use('/api/notifications', require('./routes/coordNotificationRoutes'));
-app.use('/api/activities', activityRoutes); // Add activity routes if needed
-
+app.use('/api/activities', activityRoutes);
 
 // 🚀 Start Server
 const PORT = process.env.PORT || 5000;

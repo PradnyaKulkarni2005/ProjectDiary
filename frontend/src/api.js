@@ -18,11 +18,20 @@ export const registerUser = async (userData) => {
 export const loginUser = async (credentials) => {
   try {
     const response = await API.post('/auth/login', credentials);
+    const token = response.data.token;
+
+    if (!token) {
+      throw new Error('No token received');
+    }
+
+    localStorage.setItem('token', token);
     return response.data;
   } catch (error) {
-    throw error.response?.data?.message || 'Login failed';
+    console.error('Login failed:', error);
+    throw error?.response?.data?.message || 'Login failed';
   }
 };
+
 
 // ✅ Create Group
 export const createGroup = async (groupData) => {
@@ -110,5 +119,43 @@ export const getNotificationsByUserId = async (userId) => {
   } catch (error) {
     console.error("API error fetching notifications:", error);
     throw error;
+  }
+};
+// ✅ Submit Activity Sheet
+export const submitActivitySheet = async (activityData) => {
+  try {
+    const response = await API.post('/activities/submit', activityData);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting activity sheet:', error);
+    throw error.response?.data?.message || 'Failed to submit activity sheet';
+  }
+};
+
+// ✅ Get Project Group by ID
+export const getProjectGroup = async (groupId) => {
+  try {
+    const response = await API.get(`/activities/group/${groupId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching project group:', error);
+    throw error.response?.data?.message || 'Failed to fetch project group';
+  }
+};
+
+// ✅ Get Activity Sheet by ID
+export const getActivitySheet = async (sheetId) => {
+  const token = localStorage.getItem('token');
+
+  try {
+    const response = await API.get(`/activities/sheet/${sheetId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ Required for protected route
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching activity sheet:', error);
+    throw error.response?.data?.message || 'Failed to fetch activity sheet';
   }
 };
