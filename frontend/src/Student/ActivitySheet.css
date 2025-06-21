@@ -84,6 +84,27 @@ textarea:focus {
   transform: scale(1.01);
 }
 
+.message {
+  color: #e63946;
+  margin: 10px 0;
+}
+
+.submit-button {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submit-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+
 /* Responsive Styling */
 @media (max-width: 768px) {
   .activity-sheet {

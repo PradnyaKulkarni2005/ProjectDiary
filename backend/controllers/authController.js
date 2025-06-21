@@ -1,4 +1,4 @@
-const { generateToken } = require('../utils/jwt');
+const generateToken = require('../utils/generateToken');
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
@@ -51,6 +51,7 @@ exports.login = async (req, res) => {
   }
 
   try {
+    // 🔍 Fetch user from the database
     const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = result.rows[0];
 
@@ -58,20 +59,25 @@ exports.login = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
+    // 🔐 Compare password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid password.' });
     }
 
+    // 🔐 Check role match
     if (user.role !== role) {
       return res.status(403).json({ message: `${role} account not found for this email.` });
     }
 
-    // 🔍 Get groupid if student and exists
+    // 🔗 Fetch group ID for students
     let groupid = null;
     if (role === 'student') {
       const groupRes = await db.query(
-        'SELECT id FROM project_groups WHERE email = $1 AND id IS NOT NULL',
+        `SELECT gm.group_id AS groupid
+         FROM users u
+         JOIN group_members gm ON gm.user_id = u.id
+         WHERE u.email = $1`,
         [email]
       );
       if (groupRes.rows.length > 0) {
@@ -82,13 +88,14 @@ exports.login = async (req, res) => {
     // ✅ Generate JWT token
     const token = generateToken(user.id, user.role, groupid);
 
+    // 🎉 Send response
     res.status(200).json({
       message: 'Login successful',
-      token,  // ✅ return token
+      token,
       email: user.email,
       role: user.role,
       id: user.id,
-      groupid, // optional: can send explicitly too
+      groupid,
     });
 
   } catch (err) {
