@@ -18,6 +18,7 @@ const app = express();
 const authRoutes = require('./routes/authRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const coordNotificationRoutes = require('./routes/coordNotificationRoutes'); // Rename for clarity (optional)
+const activityRoutes = require('./routes/activityRoutes'); // Import activity routes if needed
 
 // 🌍 Middleware
 app.use(cors());
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', coordNotificationRoutes);
 app.use('/api/notifications', require('./routes/coordNotificationRoutes'));
+app.use('/api/activities', activityRoutes); // Add activity routes if needed
 
 
 // 🚀 Start Server
