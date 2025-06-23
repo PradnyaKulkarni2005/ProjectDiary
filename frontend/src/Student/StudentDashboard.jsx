@@ -5,26 +5,37 @@ import ListOfPublications from './ListOfPublications';
 import Patents from './Patents';
 import CreateGroup from './CreateGroup';
 import Notifications from './Notifications';
-import { useNavigate } from 'react-router-dom';
-import { checkUserGroupStatus } from '../api';
 import CoordinatorNotifications from './CoordinatorNotifications';
+import { useNavigate } from 'react-router-dom';
+import { checkUserGroupStatus, checkPendingInvites } from '../api';
 
-const fullMenuItems = [
-  'Activity Sheet',
-  'Meetings',
-  'Evaluation',
-  'List Of Publications',
-  'Patents',
-  'Notifications',
-];
+// Icons
+import {
+  FaClipboardList,
+  FaUsers,
+  FaFileAlt,
+  FaBell,
+  FaSignOutAlt,
+  FaPlusCircle,
+  FaLightbulb
+} from 'react-icons/fa';
 
-const preGroupMenuItems = ['Create Group', 'Notifications'];
+const menuIcons = {
+  'Activity Sheet': <FaClipboardList />,
+  'Meetings': <FaUsers />,
+  'Evaluation': <FaClipboardList />,
+  'List Of Publications': <FaFileAlt />,
+  'Patents': <FaLightbulb />,
+  'Notifications': <FaBell />,
+  'Create Group': <FaPlusCircle />,
+};
 
 export default function StudentDashboard() {
   const [selectedMenu, setSelectedMenu] = useState('');
   const [groupExists, setGroupExists] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0); // used to re-render after acceptance
+  const [hasPendingInvite, setHasPendingInvite] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
 
   const userId = localStorage.getItem('userId');
@@ -39,27 +50,56 @@ export default function StudentDashboard() {
       }
 
       try {
-        const res = await checkUserGroupStatus(userId);
-        setGroupExists(res.hasGroup);
-        setSelectedMenu(res.hasGroup ? 'Activity Sheet' : 'Create Group');
+        const [groupRes, inviteRes] = await Promise.all([
+          checkUserGroupStatus(userId),
+          checkPendingInvites(userId),
+        ]);
+
+        setGroupExists(groupRes.hasGroup);
+        setHasPendingInvite(inviteRes.hasPendingInvites);
+        console.log('Invitation Status:', inviteRes.hasPendingInvites);
+
+        if (groupRes.hasGroup) {
+          setSelectedMenu('Activity Sheet');
+        } else if (inviteRes.hasPendingInvites) {
+          setSelectedMenu('Notifications');
+        } else {
+          setSelectedMenu('Create Group');
+        }
       } catch (err) {
-        console.error('Failed to check group status:', err?.response?.data || err.message);
+        console.error('Error fetching status:', err?.response?.data || err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchGroupStatus();
-  }, [userId, navigate, refreshKey]); // run when refreshKey changes
+  }, [userId, navigate, refreshKey]);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
   };
 
-  // Callback passed to Notifications to trigger refresh on acceptance
   const handleInviteAccepted = () => {
-    setRefreshKey((prev) => prev + 1); // Triggers recheck of group status
+    setRefreshKey((prev) => prev + 1); // Refresh group status
+  };
+
+  const renderMenu = () => {
+    if (groupExists) {
+      return [
+        'Activity Sheet',
+        'Meetings',
+        'Evaluation',
+        'List Of Publications',
+        'Patents',
+        'Notifications',
+      ];
+    } else if (hasPendingInvite) {
+      return ['Notifications'];
+    } else {
+      return ['Create Group', 'Notifications'];
+    }
   };
 
   const renderComponent = () => {
@@ -105,19 +145,21 @@ export default function StudentDashboard() {
       <aside className="sidebar">
         <h2 className="sidebar-title">Student Portal</h2>
         <nav className="menu">
-          {(groupExists ? fullMenuItems : preGroupMenuItems).map((item, index) => (
+          {renderMenu().map((item, index) => (
             <div
               key={index}
               className={`menu-item ${selectedMenu === item ? 'active' : ''}`}
               onClick={() => setSelectedMenu(item)}
             >
-              {item}
+              {menuIcons[item]} {item}
             </div>
           ))}
+
           <button className="hero-button" onClick={() => navigate('/student-dashboard')}>
             Back to Dashboard
           </button>
           <button className="logout-button" onClick={handleLogout}>
+            <FaSignOutAlt style={{ marginRight: '8px' }} />
             Logout
           </button>
         </nav>

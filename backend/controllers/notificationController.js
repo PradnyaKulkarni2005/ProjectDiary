@@ -15,6 +15,10 @@ const formatIST = (utcDate) => {
 };
 
 // ✅ Fetch sender's name from respective role table
+// COALESCE is used to get the first non-null value from the joined tables
+// This allows us to get the sender's name from the correct role table (coordinator, guide, hod, student) based on their email
+// If no match is found, it defaults to the user's email  
+// senderId is expected to be the user's ID
 const getSenderDetails = async (senderId) => {
   const result = await pool.query(`
     SELECT 
@@ -31,6 +35,8 @@ const getSenderDetails = async (senderId) => {
 };
 
 // ✅ Enrich notifications with sender name + formatted date
+// This function takes an array of notifications and a type (broadcast or direct)
+// It fetches the sender's name for each notification and formats the created_at date to IST
 const enrichWithSender = async (notifs, type) => {
   return Promise.all(
     notifs.map(async (n) => {
@@ -46,6 +52,7 @@ const enrichWithSender = async (notifs, type) => {
 };
 
 // ✅ Get users by role and coordinator department
+// This function takes a role and a department and returns an array of users with that role and department .means coordinator can see only students in their department
 exports.getUsersByRole = async (req, res) => {
   const { role, coordinatorId } = req.query;
 
@@ -74,7 +81,8 @@ exports.getUsersByRole = async (req, res) => {
     }
 console.log("Coordinator dept:", coordinatorDept);
 console.log("Role:", role);
-
+// fetch users based on role and coordinator department
+// Using TRIM and LOWER to ensure case-insensitive comparison and remove any leading/trailing spaces
     const query = `
   SELECT u.id, u.email, r.name, r.department AS dept
   FROM users u
@@ -92,6 +100,7 @@ console.log("Role:", role);
 };
 
 // ✅ Send notification (to all OR selected users)
+
 exports.sendNotification = async (req, res) => {
   const { senderId, receiverIds, message, isForAll } = req.body;
 
@@ -123,14 +132,17 @@ exports.sendNotification = async (req, res) => {
 
     } else {
       // ✅ Only runs if isForAll === false
+      // Check if receiverIds is an array and not empty
       if (!Array.isArray(receiverIds) || receiverIds.length === 0) {
         return res.status(400).json({ error: 'No receivers selected' });
       }
-
+// values - receiverIds is an array of user IDs to send notifications to
+      // Insert notifications for each receiver
       const insertQuery = `
         INSERT INTO user_notifications (user_id, sender_id, message, created_at)
         VALUES ${receiverIds.map((_, i) => `($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`).join(',')}
       `;
+      // Flatten  the values array to match the placeholders in the query
       const values = receiverIds.flatMap(id => [id, senderId, message, new Date()]);
       await pool.query(insertQuery, values);
     }
@@ -184,6 +196,7 @@ exports.getSentNotifications = async (req, res) => {
   const { senderId } = req.params;
 
   try {
+    // Validate senderId
     const parsedId = parseInt(senderId, 10);
     if (isNaN(parsedId)) {
       return res.status(400).json({ error: 'Invalid sender ID' });

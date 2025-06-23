@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import './CreateGroup.css'; // Optional for custom styling
 import { createGroup } from '../api'; // Adjust the import path as necessary
+import Swal from 'sweetalert2';
 
 const CreateGroup = () => {
   const [leader, setLeader] = useState({
@@ -39,7 +40,17 @@ const CreateGroup = () => {
 
 
     const result = await createGroup(payload);
-    alert('Group created and invitations sent!');
+    Swal.fire({
+      icon: 'success',
+      title: 'Group Invitations sent Successfully',
+      text: `Group created with ID: ${result.groupId}`,
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+      toast: true,
+      position: 'top-middle',
+    });
+
   } catch (err) {
     alert(err.message || 'Server error while creating group');
   }

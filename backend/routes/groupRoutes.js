@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { createGroup,respondToInvite,checkUserGroupStatus,getInvitations,getGroupMemberStatuses } = require('../controllers/groupController');
+const { createGroup,respondToInvite,checkUserGroupStatus,getInvitations,getGroupMemberStatuses,getPendingInvites} = require('../controllers/groupController');
 router.post('/create', createGroup);
 router.post('/respond', respondToInvite);
 router.get('/user/:userId', checkUserGroupStatus);
 router.get('/invitations/:userId', getInvitations);
 router.get('/leader/members/:leaderId', getGroupMemberStatuses);
-
+router.get('/pending/:userId', getPendingInvites);
 module.exports = router;

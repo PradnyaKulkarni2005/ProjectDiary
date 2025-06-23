@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../api';
 import './LoginPage.css'; // Using the same styles as login
+import Swal from 'sweetalert2';
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -37,13 +38,23 @@ function RegisterPage() {
 
       // Register API call
       await registerUser({ email, password, role });
-      alert('Registration successful!');
+      Swal.fire({
+      icon: 'success',
+      title: 'Registeration Successful !',
+      text: `Welcome ${email}!`,
+      showConfirmButton: false,
+      timer: 1800,
+      timerProgressBar: true,
+      toast: true,
+      position: 'top-middle'
+    });
       navigate(`/login?role=${role}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
+     
   };
 
   return (
