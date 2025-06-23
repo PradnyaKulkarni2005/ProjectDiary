@@ -1,17 +1,20 @@
-/* CoordinatorNotifications.css */
-
 .notifications-container {
-  padding: 1rem;
-  max-width: 800px;
+  padding: 2rem 1rem;
+  max-width: 900px;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-in;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .notifications-container h3 {
-  font-size: 1.75rem;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  margin-bottom: 1.8rem;
   color: #2c3e50;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .notification-list {
@@ -20,38 +23,41 @@
 }
 
 .notification-card {
-  background-color: #f8f9fa;
-  padding: 1rem;
+  background-color: #ffffff;
+  padding: 1.2rem 1.5rem;
   margin-bottom: 1rem;
-  border-left: 6px solid #3498db;
+  border-left: 6px solid #1abc9c;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-  animation: slideUp 0.4s ease both;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: slideUp 0.5s ease both;
 }
 
 .notification-card:hover {
   transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .notification-card p {
-  margin: 0.3rem 0;
+  margin: 0.4rem 0;
   font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
 }
 
 .notification-card strong {
-  color: #2d3436;
+  color: #34495e;
 }
 
 .notification-card em {
-  font-size: 0.85rem;
-  color: #636e72;
+  font-size: 0.9rem;
+  color: #7f8c8d;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -62,7 +68,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -72,12 +78,12 @@
 
 /* Responsive */
 @media (max-width: 600px) {
-  .notification-card {
-    padding: 0.8rem;
-  }
-
   .notifications-container h3 {
     font-size: 1.5rem;
+  }
+
+  .notification-card {
+    padding: 1rem;
   }
 
   .notification-card p {

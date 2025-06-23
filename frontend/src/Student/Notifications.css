@@ -1,70 +1,94 @@
-.notification-container {
-  max-width: 800px;
+:root {
+  --primary: #2574f4;
+  --accept: #4caf50;
+  --reject: #f44336;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.notification-container1 {
+  max-width: 900px;
   margin: 40px auto;
   padding: 30px;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  background: var(--glass-bg);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(10px);
   font-family: 'Segoe UI', sans-serif;
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeInUp 0.7s ease-out;
+  overflow: hidden;
 }
 
-.notification-container h2 {
-  font-size: 28px;
-  margin-bottom: 20px;
-  color: #333;
+.notification-container1 h2 {
+  font-size: 32px;
+  color: #222;
   text-align: center;
+  margin-bottom: 25px;
 }
 
-.notification-container h3 {
-  margin-top: 30px;
-  margin-bottom: 15px;
+.notification-container1 h3 {
+  font-size: 22px;
   color: #444;
   border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
+  margin-top: 35px;
 }
 
 .notification-card {
-  background: #f9f9f9;
-  border-left: 6px solid #4e91fc;
+  background: #ffffff;
+  border-left: 6px solid var(--primary);
   padding: 20px;
-  margin: 10px 0;
-  border-radius: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 15px 0;
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
 }
 
 .notification-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 .notification-card p {
-  margin: 6px 0;
+  margin: 8px 0;
   color: #555;
+  font-size: 15px;
 }
 
 .action-buttons {
-  margin-top: 10px;
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
 }
 
 .action-buttons button {
-  padding: 10px 18px;
-  margin-right: 10px;
+  flex: 1;
+  padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-buttons button svg {
+  margin-right: 8px;
+  font-size: 18px;
 }
 
 .action-buttons button:first-child {
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--accept);
 }
 
 .action-buttons button:last-child {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--reject);
 }
 
 .action-buttons button:hover {
@@ -74,36 +98,73 @@
 .status-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 20px;
+  font-size: 15px;
 }
 
 .status-table th,
 .status-table td {
-  padding: 12px 15px;
+  padding: 14px 18px;
   border: 1px solid #ddd;
   text-align: left;
 }
 
 .status-table th {
-  background-color: #4e91fc;
+  background-color: var(--primary);
   color: white;
+  text-transform: uppercase;
 }
 
 .status-table tr:nth-child(even) {
-  background-color: #f5f7fa;
+  background-color: #f4f8fc;
 }
 
 .status-table tr:hover {
   background-color: #eaf3ff;
 }
 
+/* Fade-in animation */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .notification-container {
+    padding: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+
+  .status-table thead {
+    display: none;
+  }
+
+  .status-table td {
+    display: block;
+    padding: 10px;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .status-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    font-weight: bold;
+    color: #666;
   }
 }

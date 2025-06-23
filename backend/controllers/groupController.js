@@ -181,3 +181,31 @@ exports.getGroupMemberStatuses = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch member statuses' });
   }
 };
+
+// pending invites for user
+exports.getPendingInvites = async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  if (!Number.isInteger(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT pg.id AS group_id, pg.status, u.email AS leader_email
+       FROM group_members gm
+       JOIN project_groups pg ON gm.group_id = pg.id
+       LEFT JOIN users u ON pg.leader_id = u.id
+       WHERE gm.user_id = $1 AND gm.status = 'pending'`,
+      [userId]
+    );
+
+    return res.json({
+      hasPendingInvites: result.rows.length > 0,
+      pendingInvites: result.rows,
+    });
+  } catch (err) {
+    console.error('🔥 Error fetching pending invites:', err.message);
+    return res.status(500).json({ message: 'Failed to fetch pending invites' });
+  }
+};

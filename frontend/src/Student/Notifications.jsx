@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {
-  getInvitations,
-  respondToInvitation,
-  getGroupMemberStatuses
-} from '../api';
+import { FaCheckCircle, FaTimesCircle, FaUsers } from 'react-icons/fa';
+import { getInvitations, respondToInvitation, getGroupMemberStatuses } from '../api';
 import './Notifications.css';
+import Swal from 'sweetalert2';
 
 const Notifications = ({ currentUser, onInviteAccepted }) => {
   const [notifications, setNotifications] = useState([]);
@@ -36,16 +34,23 @@ const Notifications = ({ currentUser, onInviteAccepted }) => {
   const handleResponse = async (groupId, action) => {
     try {
       await respondToInvitation({ userId: currentUser.id, groupId, action });
-      alert(`You have ${action} the invitation.`);
+      Swal.fire({
+        icon: 'success',
+        title: `You have ${action} the invitation.`,
+        text: `Group ID: ${groupId}`,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        toast: true,
+        position: 'top-middle',
+      });
 
-      // Remove this invitation from UI after response
+
       setNotifications((prev) => prev.filter((inv) => inv.group_id !== groupId));
 
-      // Refresh member status
       const memberStatusData = await getGroupMemberStatuses(currentUser.id);
       setMemberStatuses(memberStatusData.members || []);
 
-      // Notify dashboard to re-check group status
       if (action === 'accepted' && typeof onInviteAccepted === 'function') {
         onInviteAccepted();
       }
@@ -59,10 +64,9 @@ const Notifications = ({ currentUser, onInviteAccepted }) => {
   if (loading) return <p>Loading notifications...</p>;
 
   return (
-    <div className="notification-container">
-      <h2>Group Notifications</h2>
+    <div className="notification-container1">
+      <h2><FaUsers style={{ marginRight: '10px', color: '#4e91fc' }} /> Group Notifications</h2>
 
-      {/* Invitations received */}
       {notifications.length > 0 && (
         <>
           <h3>Invitations Received</h3>
@@ -74,8 +78,12 @@ const Notifications = ({ currentUser, onInviteAccepted }) => {
 
               {inv.status === 'pending' && (
                 <div className="action-buttons">
-                  <button onClick={() => handleResponse(inv.group_id, 'accepted')}>Accept</button>
-                  <button onClick={() => handleResponse(inv.group_id, 'rejected')}>Reject</button>
+                  <button onClick={() => handleResponse(inv.group_id, 'accepted')}>
+                    <FaCheckCircle /> Accept
+                  </button>
+                  <button onClick={() => handleResponse(inv.group_id, 'rejected')}>
+                    <FaTimesCircle /> Reject
+                  </button>
                 </div>
               )}
             </div>
@@ -83,7 +91,6 @@ const Notifications = ({ currentUser, onInviteAccepted }) => {
         </>
       )}
 
-      {/* If user is leader, show group members */}
       {memberStatuses.length > 0 && (
         <>
           <h3>Group Members' Responses</h3>
@@ -98,9 +105,9 @@ const Notifications = ({ currentUser, onInviteAccepted }) => {
             <tbody>
               {memberStatuses.map((member, index) => (
                 <tr key={index}>
-                  <td>{member.name}</td>
-                  <td>{member.prn}</td>
-                  <td>{member.status}</td>
+                  <td data-label="Name">{member.name}</td>
+                  <td data-label="PRN">{member.prn}</td>
+                  <td data-label="Status">{member.status}</td>
                 </tr>
               ))}
             </tbody>
@@ -108,7 +115,6 @@ const Notifications = ({ currentUser, onInviteAccepted }) => {
         </>
       )}
 
-      {/* Fallback message */}
       {notifications.length === 0 && memberStatuses.length === 0 && (
         <p>No invitations or group members found.</p>
       )}

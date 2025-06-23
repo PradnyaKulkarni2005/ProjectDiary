@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 // ✅ Update spotlight with logging
-exports.updateSpotlight = async (req, res) => {
+exports.updateSpotlight = async (req, res) => { 
   const { text, expiry_at } = req.body;
 
   try {
@@ -16,8 +16,11 @@ exports.updateSpotlight = async (req, res) => {
 
     console.log('🗃 Existing Active Spotlights:', existing.rows);
 
+
     let combinedContent = text;
+    // If there are existing active spotlights, combine them with the new text
     if (existing.rows.length > 0) {
+      // Join existing spotlights with the new text
       const currentActiveTexts = existing.rows.map(row => row.content).join(' | ');
       combinedContent = `${text} | ${currentActiveTexts}`;
     }

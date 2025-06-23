@@ -181,3 +181,18 @@ export const updateSpotlightContent = async (spotlightData) => {
     throw error.response?.data?.message || 'Failed to update spotlight';
   }
 };
+
+//check pending invites
+export const checkPendingInvites = async (userId) => {
+  try {
+    const response = await API.get(`/groups/pending/${userId}`);
+    return {
+      hasPendingInvites: !!response.data?.hasPendingInvites,
+      pendingInvites: response.data?.pendingInvites || [],
+    };
+  } catch (error) {
+    console.error('Error checking pending invites:', error.response?.data || error.message);
+    throw error.response?.data?.message || 'Failed to check pending invites';
+  }
+};
+
