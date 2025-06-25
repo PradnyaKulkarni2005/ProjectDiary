@@ -67,4 +67,80 @@ exports.getActivitySheet = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+// submit patent details - multiple patents at once
 
+exports.submitPatentDetails = async (req, res) => {
+  // getting the group_id and patents from the request body
+  const { project_group_id, patents } = req.body;
+// if there is no group_id or patents, return a 400 bad request
+  if (!project_group_id || !Array.isArray(patents) || patents.length === 0) {
+    return res.status(400).json({ message: 'Missing or invalid data' });
+  }
+// connect to the database bcoz we are running transaction
+  const client = await db.connect();
+  try {
+    // start transaction
+    await client.query('BEGIN');
+// initialize array to store insertedPatents
+    const insertedPatents = [];
+// loop through each patent
+    for (const patent of patents) {
+      const {
+        title,
+        patentNumber,
+        applicationNumber,
+        inventors,
+        filingDate,
+        status,
+        office,
+        description,
+      } = patent;
+// query to insert in patents table
+      const result = await client.query(
+        `INSERT INTO patents (
+          project_group_id, title, patent_number, application_number,
+          inventors, filing_date, status, office, description
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING *`,
+        [
+          project_group_id,
+          title,
+          patentNumber,
+          applicationNumber,
+          inventors,
+          filingDate,
+          status,
+          office,
+          description,
+        ]
+      );
+      //insert patents into insertedPatents array
+
+      insertedPatents.push(result.rows[0]);
+    }
+// commit the changes
+// transaction complete
+
+    await client.query('COMMIT');
+// if success then msg
+    res.status(201).json({
+      success: true,
+      message: 'Patent details submitted successfully',
+      data: insertedPatents,
+    });
+
+  } catch (err) {
+    // if rollback then error msg
+    await client.query('ROLLBACK');
+    console.error('submitPatentDetails error:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to submit patent details',
+      error: err.message,
+    });
+  } finally {
+    // close the client connection
+    client.release();
+  }
+};
+    
