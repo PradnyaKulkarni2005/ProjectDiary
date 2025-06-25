@@ -1,27 +1,40 @@
 .patents-container {
-  background-color: #f0f7ff;
+  background: linear-gradient(135deg, #e3f2fd, #ffffff);
   border-radius: 16px;
   padding: 2rem;
   max-width: 900px;
-  margin: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  margin: 2rem auto;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  animation: fadeSlideIn 0.6s ease;
 }
 
 .section-title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   text-align: center;
   color: #003b5c;
-  font-weight: bold;
+  font-weight: 700;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  width: 60px;
+  height: 4px;
+  background-color: #00acc1;
+  display: block;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
 }
 
 .patent-form {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 1.5rem;
+  background: #fdfdfd;
+  border-radius: 20px;
+  padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  animation: fadeSlideUp 0.6s ease;
 }
 
 label {
@@ -29,6 +42,7 @@ label {
   margin-top: 1rem;
   font-weight: 600;
   color: #003b5c;
+  font-size: 1rem;
 }
 
 input[type='text'],
@@ -36,62 +50,105 @@ input[type='date'],
 select,
 textarea {
   width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.3rem;
-  border-radius: 12px;
-  border: none;
-  background-color: #eef3f8;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  padding: 0.85rem 1rem;
+  margin-top: 0.4rem;
+  border-radius: 14px;
+  border: 1px solid #d0dbe5;
+  background-color: #f4f8fc;
   font-size: 1rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+  border-color: #00acc1;
+  box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.2);
+  background-color: #ffffff;
 }
 
 textarea {
-  min-height: 80px;
+  min-height: 100px;
   resize: vertical;
 }
 
 .add-button {
-  background-color: #00acc1;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 12px;
+  background: linear-gradient(to right, #00acc1, #0097a7);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 16px;
   border: none;
-  font-weight: bold;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
   cursor: pointer;
   display: block;
-  margin: 0 auto;
-  transition: background 0.3s ease;
+  margin: 1.5rem auto 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 172, 193, 0.3);
 }
 
 .add-button:hover {
-  background-color: #0097a7;
+  background: linear-gradient(to right, #0097a7, #007c91);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 150, 180, 0.4);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s ease;
+  animation: fadeSlideUp 0.5s ease;
 }
 
-/* Responsive */
+/* Responsive Enhancements */
 @media (max-width: 768px) {
   .patents-container {
     padding: 1rem;
   }
 
   .section-title {
+    font-size: 1.6rem;
+  }
+
+  .add-button {
+    width: 100%;
+    padding: 12px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
     font-size: 1.4rem;
+  }
+
+  input[type='text'],
+  input[type='date'],
+  select,
+  textarea {
+    font-size: 0.95rem;
+  }
+
+  .add-button {
+    font-size: 0.95rem;
   }
 }

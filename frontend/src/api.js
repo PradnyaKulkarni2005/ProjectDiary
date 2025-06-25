@@ -196,3 +196,18 @@ export const checkPendingInvites = async (userId) => {
   }
 };
 
+//  post patent details
+export const postPatentDetails = async (patentData) =>{
+  try{
+    const response = await API.post('/activities/subpatent', patentData);
+    return response.data;
+  }
+  catch(error){
+    throw error.response?.data?.message || 'Failed to post patent details';
+
+  }
+};
+
+
+
+
