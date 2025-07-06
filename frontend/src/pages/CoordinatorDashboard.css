@@ -255,3 +255,94 @@
   font-size: 1rem;
   cursor: pointer;
 }
+.notification-item {
+  background-color: #ffffff;
+  border-left: 6px solid #007bff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: transform 0.2s;
+}
+
+.notification-item:hover {
+  transform: translateY(-4px);
+}
+
+.notification-details p {
+  margin: 4px 0;
+  color: #333;
+}
+
+.delete-button {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-button:hover {
+  background-color: #d9363e;
+}
+
+/* Spotlight Form Enhancements */
+.spotlight-form {
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  margin-top: 20px;
+}
+
+.spotlight-form label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.spotlight-form textarea,
+.spotlight-form input[type="datetime-local"] {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.3s;
+}
+
+.spotlight-form textarea:focus,
+.spotlight-form input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.spotlight-form button {
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  color: white;
+  border: none;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.spotlight-form button:hover {
+  background: linear-gradient(to right, #0072ff, #0056b3);
+}
+button {
+  background-size: 200% auto;
+  transition: 0.4s;
+}
+
+button:hover {
+  background-position: right center;
+}
