@@ -100,23 +100,28 @@ const CoordinatorDashboard = () => {
           </div>
         );
       case "sentNotifications":
-        return (
-          <div className="welcome-box">
-            <h2>Sent Notifications</h2>
-            {sentNotifications.map((n) => (
-              <li key={n.id} className="notification-item">
-                <div className="notification-details">
-                  <p><strong>To:</strong> {n.receiver_name}</p>
-                  <p><strong>Message:</strong> {n.message}</p>
-                  <p><strong>Time:</strong> {new Date(n.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
-                </div>
-                <button className="delete-button" onClick={() => handleDeleteNotification(n.id)}>
-                  <FaTrash />
-                </button>
-              </li>
-            ))}
+  return (
+    <div className="welcome-box">
+      <h2>Sent Notifications</h2>
+      {sentNotifications.length === 0 ? (
+        <p>No notifications sent yet.</p>
+      ) : (
+        sentNotifications.map((n) => (
+          <div key={n.id} className="notification-item">
+            <div className="notification-details">
+              <p><strong>To:</strong> {n.receiver_name}</p>
+              <p><strong>Message:</strong> {n.message}</p>
+              <p><strong>Time:</strong> {new Date(n.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
+            </div>
+            <button className="delete-button" onClick={() => handleDeleteNotification(n.id)}>
+              <FaTrash />
+            </button>
           </div>
-        );
+        ))
+      )}
+    </div>
+  );
+
       case "sendNotification":
         return (
           <div>
