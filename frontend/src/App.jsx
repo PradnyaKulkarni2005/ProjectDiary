@@ -14,15 +14,17 @@ import Rubric4 from './pages/Rubric4';
 import COProjectTable from './pages/COProjectTable';
 import POPage from './pages/POPage';
 import PSOPage from './pages/PSOPage';
-import GuideDashboard from './pages/GuideDashboard';
+import GuideDashboard from './Guide/GuideDashboard';
 import ProjectGroupPage from './pages/ProjectGroupPage';
 import StudentDashboard from './Student/StudentDashboard';
 import Registeration from './pages/RegisterPage';
+// import GuideDashboard2 from './Guide/GuideDashboard';
 
 function App() {
   return (
     <>
       <Navbar />
+      
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login/*" element={<LoginPage />} />
