@@ -23,6 +23,7 @@ const groupRoutes = require('./routes/groupRoutes');
 const coordNotificationRoutes = require('./routes/coordNotificationRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const spotlightRoutes = require('./routes/spotlightRoutes');
+const guideRoutes = require('./routes/guideRoutes');
 
 // 🌍 Middleware
 app.use(cors());
@@ -34,6 +35,7 @@ app.use('/api/groups', groupRoutes);
 app.use('/api/notifications', coordNotificationRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/spotlight', spotlightRoutes);
+app.use('/api/guides', guideRoutes);
 
 // ✅ Health Check Route
 app.get('/health', async (req, res) => {

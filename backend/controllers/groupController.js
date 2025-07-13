@@ -209,3 +209,46 @@ exports.getPendingInvites = async (req, res) => {
     return res.status(500).json({ message: 'Failed to fetch pending invites' });
   }
 };
+
+
+// Submit Guide Preferences
+exports.submitGuidePreferences = async (req, res) => {
+  // body should contain groupId and an array of preferences
+  const { groupId, preferences } = req.body;
+// validating the groupId and preferences , preferences should be an array of exactly 3 guide IDs
+  if (!groupId || !preferences || !Array.isArray(preferences) || preferences.length !== 3) {
+    return res.status(400).json({ message: 'Exactly 3 guide preferences are required' });
+  }
+
+  try {
+    // Check if group exists
+    const groupCheck = await pool.query('SELECT * FROM groups WHERE id = $1', [groupId]);
+    if (groupCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    // Prevent resubmission
+    // Check if preferences already exist for this group
+    const prefCheck = await pool.query(
+      'SELECT * FROM guide_preferences WHERE group_id = $1',
+      [groupId]
+    );
+    // If preferences already exist, return conflict status
+    if (prefCheck.rows.length > 0) {
+      return res.status(409).json({ message: 'Preferences already submitted' });
+    }
+
+    // Insert preferences
+    for (let i = 0; i < preferences.length; i++) {
+      await pool.query(
+        `INSERT INTO guide_preferences (group_id, guide_id, preference_order,status) VALUES ($1, $2, $3,'pending')`,
+        [groupId, preferences[i], i + 1]
+      );
+    }
+
+    res.status(201).json({ message: 'Guide preferences submitted successfully' });
+  } catch (error) {
+    console.error('Error submitting guide preferences:', error);
+    res.status(500).json({ message: 'Server error while submitting preferences' });
+  }
+};
