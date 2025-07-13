@@ -208,6 +208,27 @@ export const postPatentDetails = async (patentData) =>{
   }
 };
 
+// ✅ Fetch guides for a department
+export const fetchGuidesByDepartment = async (department) => {
+  try {
+    const response = await API.get(`/guides?department=${department}`);
+    return response.data; // Expected: { guides: [...] }
+  } catch (error) {
+    console.error('Error fetching guides:', error);
+    throw error.response?.data?.message || 'Failed to fetch guide list';
+  }
+};
 
-
-
+// ✅ Submit guide preferences for a group
+export const submitGuidePreferences = async ({ groupId, preferences }) => {
+  try {
+    const response = await API.post('/groups/submit-guide-preferences', {
+      groupId,
+      preferences, // Expected: [guideId1, guideId2, guideId3]
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting guide preferences:', error);
+    throw error.response?.data?.message || 'Failed to submit guide preferences';
+  }
+};

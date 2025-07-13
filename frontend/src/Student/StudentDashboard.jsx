@@ -6,6 +6,7 @@ import Patents from './Patents';
 import CreateGroup from './CreateGroup';
 import Notifications from './Notifications';
 import CoordinatorNotifications from './CoordinatorNotifications';
+import GuidePreferences from './GuidePreferences';
 import { useNavigate } from 'react-router-dom';
 import { checkUserGroupStatus, checkPendingInvites } from '../api';
 
@@ -36,6 +37,9 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [hasPendingInvite, setHasPendingInvite] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [groupId, setGroupId] = useState(null); // add this
+  const [showGuidePref, setShowGuidePref] = useState(false); // for controlling view
+
   const navigate = useNavigate();
 
   const userId = localStorage.getItem('userId');
@@ -108,7 +112,12 @@ export default function StudentDashboard() {
     if (!groupExists) {
       switch (selectedMenu) {
         case 'Create Group':
-          return <CreateGroup />;
+          return (<CreateGroup
+      onGroupCreated={(newGroupId) => {
+        setGroupId(newGroupId);
+        setShowGuidePref(true);
+      }}
+    />);
         case 'Notifications':
           return (
             <>
