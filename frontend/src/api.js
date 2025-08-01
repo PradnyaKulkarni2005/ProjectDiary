@@ -37,6 +37,7 @@ export const loginUser = async (credentials) => {
 export const createGroup = async (groupData) => {
   try {
     const response = await API.post('/groups/create', groupData);
+    console.log("API request sent");
     return response.data;
   } catch (error) {
     throw error.response?.data?.message || 'Failed to create group';
@@ -208,16 +209,18 @@ export const postPatentDetails = async (patentData) =>{
   }
 };
 
-// ✅ Fetch guides for a department
-export const fetchGuidesByDepartment = async (department) => {
+// Fetch guides for a department
+// FIXED: Pass userId, not department
+export const fetchGuidesByUserId = async (userId) => {
   try {
-    const response = await API.get(`/guides?department=${department}`);
+    const response = await API.get(`/guides/by-department/${userId}`);
     return response.data; // Expected: { guides: [...] }
   } catch (error) {
     console.error('Error fetching guides:', error);
     throw error.response?.data?.message || 'Failed to fetch guide list';
   }
 };
+
 
 // ✅ Submit guide preferences for a group
 export const submitGuidePreferences = async ({ groupId, preferences }) => {
