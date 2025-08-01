@@ -1,9 +1,9 @@
 // src/components/GuidePreferences.js
 import React, { useEffect, useState } from 'react';
 import './GuidePreferences.css';
-import {fetchGuidesByDepartment,submitGuidePreferences} from '../api';
+import {fetchGuidesByUserId,submitGuidePreferences} from '../api';
 
-export default function GuidePreferences({ groupId, department, onSubmitted }) {
+export default function GuidePreferences({ groupId, userId, onSubmitted }) {
   const [guides, setGuides] = useState([]);
   const [preferences, setPreferences] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,9 +12,9 @@ export default function GuidePreferences({ groupId, department, onSubmitted }) {
   useEffect(() => {
     const fetchGuides = async () => {
       try {
-        const res = await fetchGuidesByDepartment(department);
-        const data = await res.json();
+        const data = await fetchGuidesByDepartment(department);
         setGuides(data.guides || []);
+
       } catch (err) {
         console.error('Error fetching guides:', err);
         alert('Failed to load guides.');
