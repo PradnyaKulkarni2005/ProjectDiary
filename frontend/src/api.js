@@ -213,7 +213,9 @@ export const postPatentDetails = async (patentData) =>{
 // FIXED: Pass userId, not department
 export const fetchGuidesByUserId = async (userId) => {
   try {
+    console.log('Fetching guides for userId:', userId);
     const response = await API.get(`/guides/by-department/${userId}`);
+    console.log("Sent request");
     return response.data; // Expected: { guides: [...] }
   } catch (error) {
     console.error('Error fetching guides:', error);
