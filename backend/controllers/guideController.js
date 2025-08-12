@@ -1,6 +1,9 @@
 const pool = require('../config/db');
 exports.getGuidesByStudentUserId = async (req, res) => {
+  
   const { userId } = req.params;
+  console.log("userId param:", userId);
+
 
   try {
     // Step 1: Get student's department
@@ -23,6 +26,7 @@ exports.getGuidesByStudentUserId = async (req, res) => {
       'SELECT id, name, email, contact FROM guides WHERE department = $1',
       [department]
     );
+    console.log('Guides fetched:', guidesResult);
 
     res.status(200).json({ guides: guidesResult.rows });
   } catch (error) {

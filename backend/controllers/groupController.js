@@ -4,39 +4,54 @@ const db = require('../config/db');
 exports.createGroup = async (req, res) => {
   const { leaderId, members } = req.body;
 
+  console.log('🔵 Received request to create group');
+  console.log('➡️ Leader ID:', leaderId);
+  console.log('➡️ Members:', members);
+
   try {
-    // 1. Create the group
+    // Step 1: Create the group
     const groupResult = await db.query(
       'INSERT INTO project_groups (leader_id, status) VALUES ($1, $2) RETURNING id',
       [leaderId, 'pending']
     );
     const groupId = groupResult.rows[0].id;
+    console.log(`✅ Group created with ID: ${groupId}`);
 
-    // 2. Add leader to the group as accepted
+    // Step 2: Add leader to the group with accepted status
     await db.query(
       'INSERT INTO group_members (group_id, user_id, status) VALUES ($1, $2, $3)',
       [groupId, leaderId, 'accepted']
     );
+    console.log(`✅ Leader (ID: ${leaderId}) added to group_members`);
 
-    // 3. Add members and send notifications
+    const skippedEmails = [];
+    const successEmails = [];
+
+    // Step 3: Process each member
     for (const member of members) {
+      console.log(`🔍 Looking for user with email: ${member.email}`);
       const userResult = await db.query(
         'SELECT id FROM users WHERE email = $1',
         [member.email]
       );
 
       if (userResult.rows.length === 0) {
-        console.warn(`Member with email ${member.email} not found. Skipping.`);
+        console.warn(`⚠️ Member with email ${member.email} not found. Skipping.`);
+        skippedEmails.push(member.email);
         continue;
       }
 
       const userId = userResult.rows[0].id;
+      console.log(`✅ Found userId ${userId} for email ${member.email}`);
 
+      // Add member to group with 'pending' status
       await db.query(
         'INSERT INTO group_members (group_id, user_id, status) VALUES ($1, $2, $3)',
         [groupId, userId, 'pending']
       );
+      console.log(`✅ Added userId ${userId} to group_members`);
 
+      // Send notification
       await db.query(
         'INSERT INTO notifications (user_id, message, type, seen) VALUES ($1, $2, $3, $4)',
         [
@@ -46,15 +61,24 @@ exports.createGroup = async (req, res) => {
           false,
         ]
       );
+      console.log(`📬 Notification sent to userId ${userId}`);
+
+      successEmails.push(member.email);
     }
 
-    res.status(201).json({ message: 'Group created and invites sent' });
+    return res.status(201).json({
+      message: 'Group created and invitations sent',
+      groupId,
+      successEmails,
+      skippedEmails,
+    });
 
   } catch (err) {
-    console.error('Group creation error:', err);
-    res.status(500).json({ error: 'Failed to create group' });
+    console.error('❌ Group creation error:', err);
+    return res.status(500).json({ error: 'Failed to create group' });
   }
 };
+
 
 // Respond to a group invitation
 exports.respondToInvite = async (req, res) => {
@@ -86,32 +110,95 @@ exports.respondToInvite = async (req, res) => {
 };
 
 
+
 // Check if a user is already in a group or has a pending invitation
 exports.checkUserGroupStatus = async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    const leaderCheck = await db.query(
-      'SELECT * FROM project_groups WHERE leader_id = $1 AND status = $2',
-      [userId, 'formed']
+    // 1. Check if user is a leader of any group
+    const leaderRes = await db.query(
+      `SELECT id, status FROM project_groups WHERE leader_id = $1`,
+      [userId]
     );
 
-    const memberCheck = await db.query(
-      'SELECT * FROM group_members WHERE user_id = $1 AND status = $2',
-      [userId, 'accepted']
+    if (leaderRes.rows.length > 0) {
+      const groupId = leaderRes.rows[0].id;
+      const groupStatus = leaderRes.rows[0].status;
+
+      // 2. Count how many members are in the group and how many accepted
+      const memberCountRes = await db.query(
+        `SELECT COUNT(*) FILTER (WHERE status = 'accepted') AS accepted,
+                COUNT(*) AS total
+         FROM group_members
+         WHERE group_id = $1`,
+        [groupId]
+      );
+
+      // 3. Check if guide is selected
+      const guidePrefRes = await db.query(
+        `SELECT COUNT(*) FROM guide_preferences WHERE group_id = $1`,
+        [groupId]
+      );
+
+      const accepted = parseInt(memberCountRes.rows[0].accepted, 10);
+      const total = parseInt(memberCountRes.rows[0].total, 10);
+      const guideSelected = parseInt(guidePrefRes.rows[0].count, 10) > 0;
+
+      // 4. NEW: Determine eligibility to submit guide preferences
+      const eligibleForGuidePreferences =
+        groupStatus === 'pending' && // project_groups.status is pending
+        accepted === total &&   // all members accepted
+        !guideSelected;         // guide prefs not submitted yet
+
+      return res.json({
+        hasGroup: true,
+        hasPendingInvitation: false,
+        isLeader: true,
+        groupId,
+        allMembersAccepted: accepted === total,
+        guideSelected,
+        eligibleForGuidePreferences // <-- added
+      });
+    }
+
+    // 5. Check if user is a group member (not leader)
+    const memberGroupRes = await db.query(
+      `SELECT gm.group_id
+       FROM group_members gm
+       WHERE gm.user_id = $1 AND gm.status = 'accepted'`,
+      [userId]
     );
 
-    const pendingCheck = await db.query(
-      'SELECT * FROM group_members WHERE user_id = $1 AND status = $2',
-      [userId, 'pending']
-    );
+    if (memberGroupRes.rows.length > 0) {
+      const groupId = memberGroupRes.rows[0].group_id;
 
-    const hasGroup = leaderCheck.rows.length > 0 || memberCheck.rows.length > 0;
-    const hasPendingInvitation = pendingCheck.rows.length > 0;
+      // Check if guide preferences submitted
+      const guidePrefRes = await db.query(
+        `SELECT COUNT(*) FROM guide_preferences WHERE group_id = $1`,
+        [groupId]
+      );
+
+      const guideSelected = parseInt(guidePrefRes.rows[0].count, 10) > 0;
+
+      return res.json({
+        hasGroup: true,
+        hasPendingInvitation: false,
+        isLeader: false,
+        groupId,
+        guideSelected
+      });
+    }
+
+    // 6. Check if user has pending invitation
+    const pendingRes = await db.query(
+      `SELECT 1 FROM group_members WHERE user_id = $1 AND status = 'pending'`,
+      [userId]
+    );
 
     return res.json({
-      hasGroup,
-      hasPendingInvitation
+      hasGroup: false,
+      hasPendingInvitation: pendingRes.rows.length > 0
     });
 
   } catch (err) {
@@ -119,7 +206,6 @@ exports.checkUserGroupStatus = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 // Get pending invitations for a user
 exports.getInvitations = async (req, res) => {
@@ -222,14 +308,14 @@ exports.submitGuidePreferences = async (req, res) => {
 
   try {
     // Check if group exists
-    const groupCheck = await pool.query('SELECT * FROM groups WHERE id = $1', [groupId]);
+    const groupCheck = await db.query('SELECT * FROM project_groups WHERE id = $1', [groupId]);
     if (groupCheck.rows.length === 0) {
       return res.status(404).json({ message: 'Group not found' });
     }
 
     // Prevent resubmission
     // Check if preferences already exist for this group
-    const prefCheck = await pool.query(
+    const prefCheck = await db.query(
       'SELECT * FROM guide_preferences WHERE group_id = $1',
       [groupId]
     );
@@ -240,7 +326,7 @@ exports.submitGuidePreferences = async (req, res) => {
 
     // Insert preferences
     for (let i = 0; i < preferences.length; i++) {
-      await pool.query(
+      await db.query(
         `INSERT INTO guide_preferences (group_id, guide_id, preference_order,status) VALUES ($1, $2, $3,'pending')`,
         [groupId, preferences[i], i + 1]
       );
