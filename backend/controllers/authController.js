@@ -26,6 +26,12 @@ exports.register = async (req, res) => {
         return res.status(403).json({ message: 'Email not found in coordinator records' });
       }
     }
+    if(role == 'Guide'){
+      const guide = await db.query('SELECT * FROM guides WHERE email = $1', [email]);
+      if(guide.rows.length === 0){
+        return res.status(403).json({ message: 'Email not found in guide records' });
+      }
+    }
 
     // Proceed to hash password and register
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -59,18 +65,18 @@ exports.login = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    // 🔐 Compare password
+    //  Compare password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid password.' });
     }
 
-    // 🔐 Check role match
+    //  Check role match
     if (user.role !== role) {
       return res.status(403).json({ message: `${role} account not found for this email.` });
     }
 
-    // 🔗 Fetch group ID for students
+    //  Fetch group ID for students
     let groupid = null;
     if (role === 'student') {
       const groupRes = await db.query(
@@ -85,10 +91,10 @@ exports.login = async (req, res) => {
       }
     }
 
-    // ✅ Generate JWT token
+    //  Generate JWT token
     const token = generateToken(user.id, user.role, groupid);
 
-    // 🎉 Send response
+    //  Send response
     res.status(200).json({
       message: 'Login successful',
       token,

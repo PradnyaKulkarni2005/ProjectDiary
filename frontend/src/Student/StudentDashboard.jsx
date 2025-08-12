@@ -6,7 +6,7 @@ import Patents from './Patents';
 import CreateGroup from './CreateGroup';
 import Notifications from './Notifications';
 import CoordinatorNotifications from './CoordinatorNotifications';
-import GuidePreferences from './GuidePreferences';
+import GuidePreferences from './GuidePreference';
 import { useNavigate } from 'react-router-dom';
 import { checkUserGroupStatus, checkPendingInvites } from '../api';
 
@@ -29,6 +29,7 @@ const menuIcons = {
   'Patents': <FaLightbulb />,
   'Notifications': <FaBell />,
   'Create Group': <FaPlusCircle />,
+  'Submit Guide Preferences': <FaLightbulb />
 };
 
 export default function StudentDashboard() {
@@ -37,11 +38,12 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [hasPendingInvite, setHasPendingInvite] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [groupId, setGroupId] = useState(null); // add this
-  const [showGuidePref, setShowGuidePref] = useState(false); // for controlling view
+  const [groupId, setGroupId] = useState(null);
+  const [showGuidePref, setShowGuidePref] = useState(false);
+  const [isLeader, setIsLeader] = useState(false);
+  const [eligibleForGuidePreferences, setEligibleForGuidePreferences] = useState(false);
 
   const navigate = useNavigate();
-
   const userId = localStorage.getItem('userId');
   const currentUser = { id: userId };
 
@@ -61,7 +63,14 @@ export default function StudentDashboard() {
 
         setGroupExists(groupRes.hasGroup);
         setHasPendingInvite(inviteRes.hasPendingInvites);
-        console.log('Invitation Status:', inviteRes.hasPendingInvites);
+        setGroupId(groupRes.groupId || null);
+        setIsLeader(groupRes.isLeader || false);
+        setEligibleForGuidePreferences(groupRes.eligibleForGuidePreferences || false);
+
+        // Auto-open guide preference form if eligible
+        if (groupRes.isLeader && groupRes.eligibleForGuidePreferences) {
+          setShowGuidePref(true);
+        }
 
         if (groupRes.hasGroup) {
           setSelectedMenu('Activity Sheet');
@@ -91,7 +100,7 @@ export default function StudentDashboard() {
 
   const renderMenu = () => {
     if (groupExists) {
-      return [
+      const baseMenu = [
         'Activity Sheet',
         'Meetings',
         'Evaluation',
@@ -99,6 +108,13 @@ export default function StudentDashboard() {
         'Patents',
         'Notifications',
       ];
+
+      // Add option for guide preferences if leader & eligible
+      if (isLeader && eligibleForGuidePreferences) {
+        baseMenu.unshift('Submit Guide Preferences');
+      }
+
+      return baseMenu;
     } else if (hasPendingInvite) {
       return ['Notifications'];
     } else {
@@ -109,15 +125,32 @@ export default function StudentDashboard() {
   const renderComponent = () => {
     if (loading) return <div>Loading...</div>;
 
+    // Show Guide Preferences if set
+    if (showGuidePref) {
+      return (
+        <GuidePreferences
+          groupId={groupId}
+          onSubmitted={() => {
+            setShowGuidePref(false);
+            setRefreshKey((prev) => prev + 1);
+            setEligibleForGuidePreferences(false);
+            setSelectedMenu('Activity Sheet');
+          }}
+        />
+      );
+    }
+
     if (!groupExists) {
       switch (selectedMenu) {
         case 'Create Group':
-          return (<CreateGroup
-      onGroupCreated={(newGroupId) => {
-        setGroupId(newGroupId);
-        setShowGuidePref(true);
-      }}
-    />);
+          return (
+            <CreateGroup
+              onGroupCreated={(newGroupId) => {
+                setGroupId(newGroupId);
+                setShowGuidePref(true); // Show guide form after group creation
+              }}
+            />
+          );
         case 'Notifications':
           return (
             <>
@@ -131,6 +164,18 @@ export default function StudentDashboard() {
     }
 
     switch (selectedMenu) {
+      case 'Submit Guide Preferences':
+        return (
+          <GuidePreferences
+            groupId={groupId}
+            onSubmitted={() => {
+              setShowGuidePref(false);
+              setRefreshKey(prev => prev + 1);
+              setEligibleForGuidePreferences(false);
+              setSelectedMenu('Activity Sheet');
+            }}
+          />
+        );
       case 'Activity Sheet':
         return <ActivitySheet />;
       case 'List Of Publications':
@@ -158,7 +203,14 @@ export default function StudentDashboard() {
             <div
               key={index}
               className={`menu-item ${selectedMenu === item ? 'active' : ''}`}
-              onClick={() => setSelectedMenu(item)}
+              onClick={() => {
+                if (item === 'Submit Guide Preferences') {
+                  setShowGuidePref(true);
+                } else {
+                  setShowGuidePref(false);
+                }
+                setSelectedMenu(item);
+              }}
             >
               {menuIcons[item]} {item}
             </div>

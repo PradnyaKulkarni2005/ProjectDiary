@@ -1,23 +1,36 @@
 const pool = require('../config/db');
+exports.getGuidesByStudentUserId = async (req, res) => {
+  
+  const { userId } = req.params;
+  console.log("userId param:", userId);
 
-// Get guides by department
-exports.getGuidesByDepartment = async (req, res) => {
-    // Extract department from query parameters
-  const { department } = req.query;
-// Validate department
-  if (!department) {
-    return res.status(400).json({ message: 'Department is required' });
-  }
-// Fetch guides from the database
+
   try {
-    const result = await pool.query(
-      'SELECT id, name, email FROM users WHERE role = $1 AND department = $2',
-      ['guide', department]
+    // Step 1: Get student's department
+    const studentResult = await pool.query(
+      `SELECT s.department
+       FROM student s
+       JOIN users u ON u.email = s.email
+       WHERE u.id = $1`,
+      [userId]
     );
 
-    res.status(200).json({ guides: result.rows });
+    if (studentResult.rowCount === 0) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const department = studentResult.rows[0].department;
+
+    // Step 2: Get guides from that department
+    const guidesResult = await pool.query(
+      'SELECT id, name, email, contact FROM guides WHERE department = $1',
+      [department]
+    );
+    console.log('Guides fetched:', guidesResult);
+
+    res.status(200).json({ guides: guidesResult.rows });
   } catch (error) {
-    console.error('Error fetching guides:', error);
+    console.error('Error fetching guides by userId:', error);
     res.status(500).json({ message: 'Failed to fetch guides' });
   }
 };

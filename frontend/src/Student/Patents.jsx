@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './Patents.css';
-import { postPatentDetails } from '../api'; // Adjust path as needed
+import { postPatentDetails } from '../api';
 import {jwtDecode} from 'jwt-decode';
 import Swal from 'sweetalert2';
 

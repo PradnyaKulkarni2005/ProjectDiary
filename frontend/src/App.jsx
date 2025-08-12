@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // ✅ Only use Routes and Route
+import { Routes, Route } from 'react-router-dom'; // Only use Routes and Route
 
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
@@ -19,11 +19,13 @@ import ProjectGroupPage from './pages/ProjectGroupPage';
 import StudentDashboard from './Student/StudentDashboard';
 import Registeration from './pages/RegisterPage';
 // import GuideDashboard2 from './Guide/GuideDashboard';
+import GuidePreferences from './Student/GuidePreference'; // Import GuidePreferences component
 
 function App() {
   return (
     <>
       <Navbar />
+      
       
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -41,6 +43,7 @@ function App() {
         <Route path="/guide-dashboard" element={<GuideDashboard />} />
         <Route path="/project-dashboard" element={<ProjectGroupPage />} />
         <Route path="/register" element={<Registeration />} />
+        <Route path="/preferences" element={<GuidePreferences/>} />
         {/* <Route path="/test-supabase" element={<SupabaseTestPage />} /> */}
 
         {/* Add more routes as needed */}
