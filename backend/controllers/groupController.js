@@ -116,7 +116,7 @@ exports.checkUserGroupStatus = async (req, res) => {
   const userId = req.params.userId;
 
   try {
-    // 1. Check if user is a leader of any group
+    // 1. Check if user is a leader of any group 
     const leaderRes = await db.query(
       `SELECT id, status FROM project_groups WHERE leader_id = $1`,
       [userId]
@@ -145,7 +145,7 @@ exports.checkUserGroupStatus = async (req, res) => {
       const total = parseInt(memberCountRes.rows[0].total, 10);
       const guideSelected = parseInt(guidePrefRes.rows[0].count, 10) > 0;
 
-      // 4. NEW: Determine eligibility to submit guide preferences
+      // 4. NEW: Determine eligibility to submit guide preferences - status must be 'pending', all members accepted, and guide prefs not submitted yet
       const eligibleForGuidePreferences =
         groupStatus === 'pending' && // project_groups.status is pending
         accepted === total &&   // all members accepted
