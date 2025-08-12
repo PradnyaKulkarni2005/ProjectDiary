@@ -1,9 +1,9 @@
 // src/components/GuidePreferences.js
 import React, { useEffect, useState } from 'react';
 import './GuidePreferences.css';
-import {fetchGuidesByUserId,submitGuidePreferences} from '../api';
+import { fetchGuidesByUserId, submitGuidePreferences } from '../api';
 
-export default function GuidePreferences({ groupId, userId, onSubmitted }) {
+export default function GuidePreferences({ groupId, onSubmitted }) {
   const [guides, setGuides] = useState([]);
   const [preferences, setPreferences] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,9 +12,14 @@ export default function GuidePreferences({ groupId, userId, onSubmitted }) {
   useEffect(() => {
     const fetchGuides = async () => {
       try {
-        const data = await fetchGuidesByDepartment(department);
-        setGuides(data.guides || []);
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          throw new Error('No userId found in localStorage');
+        }
 
+        const data = await fetchGuidesByUserId(userId);
+        console.log('Fetched guides:', data);
+        setGuides(data.guides || []);
       } catch (err) {
         console.error('Error fetching guides:', err);
         alert('Failed to load guides.');
@@ -24,7 +29,7 @@ export default function GuidePreferences({ groupId, userId, onSubmitted }) {
     };
 
     fetchGuides();
-  }, [department]);
+  }, []); // No dependencies needed here
 
   const togglePreference = (guideId) => {
     setPreferences((prev) => {
@@ -48,23 +53,21 @@ export default function GuidePreferences({ groupId, userId, onSubmitted }) {
     setSubmitting(true);
     try {
       const res = await submitGuidePreferences({ groupId, preferences });
-        if (!res || !res.guides) {
-            throw new Error('Invalid response from server');
-        }
-        // Handle successful submission
-        alert('Guide preferences submitted successfully!');
-        // Optionally, you can reset preferences or navigate back
-        setPreferences([]);
+      if (!res || !res.guides) {
+        throw new Error('Invalid response from server');
+      }
 
-        // Notify parent component (e.g., return to dashboard)
-        if (onSubmitted) {
-          onSubmitted();
-        }
-        } catch (err) {
+      alert('Guide preferences submitted successfully!');
+      setPreferences([]);
+
+      if (onSubmitted) {
+        onSubmitted();
+      }
+    } catch (err) {
       console.error('Error submitting preferences:', err);
-        alert('Failed to submit preferences. Please try again.');
-        // Optionally, you can handle specific error messages here
-        return;
+      alert('Failed to submit preferences. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
