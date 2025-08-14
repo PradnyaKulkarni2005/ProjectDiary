@@ -123,7 +123,7 @@ function Navbar() {
               <a href="#">AIML</a>
               <a href="#">CS Regional</a>
               <Link to="/pso">Programme Specific Outcomes (PSO)</Link>
-              <Link to="/guide-dashboard">Guide</Link>
+              <Link to="/preferences">Guide Preferences</Link>
             </div>
           </div>
 
