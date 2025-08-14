@@ -1,5 +1,6 @@
 // src/components/GuidePreferences.js
 import React, { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import './GuidePreferences.css';
 import { fetchGuidesByUserId, submitGuidePreferences } from '../api';
 
@@ -51,13 +52,19 @@ export default function GuidePreferences({ groupId, onSubmitted }) {
     }
 
     setSubmitting(true);
+    console.log('Submitting preferences:', preferences);
     try {
       const res = await submitGuidePreferences({ groupId, preferences });
-      if (!res || !res.guides) {
+      console.log('Submit response:', res);
+      if (!res || !res.message) {
         throw new Error('Invalid response from server');
-      }
+    }
 
-      alert('Guide preferences submitted successfully!');
+      Swal.fire({
+        icon: 'success',
+        title: 'Preferences Submitted',
+        text: 'Guide preferences submitted successfully!',
+      });
       setPreferences([]);
 
       if (onSubmitted) {
