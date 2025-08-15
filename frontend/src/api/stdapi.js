@@ -4,35 +4,6 @@ const API = axios.create({
   baseURL: 'http://localhost:5000/api', // Adjust if deployed
 });
 
-// Register user
-export const registerUser = async (userData) => {
-  try {
-    const response = await API.post('/auth/register', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data?.message || 'Registration failed';
-  }
-};
-
-// Login user
-export const loginUser = async (credentials) => {
-  try {
-    const response = await API.post('/auth/login', credentials);
-    const token = response.data.token;
-
-    if (!token) {
-      throw new Error('No token received');
-    }
-
-    localStorage.setItem('token', token);
-    return response.data;
-  } catch (error) {
-    console.error('Login failed:', error);
-    throw error?.response?.data?.message || 'Login failed';
-  }
-};
-
-
 // ✅ Create Group
 export const createGroup = async (groupData) => {
   try {
@@ -91,37 +62,6 @@ export const getGroupMemberStatuses = async (leaderId) => {
     throw error.response?.data?.message || 'Failed to get group member statuses';
   }
 };
-// ✅ Send Notification
-export const sendNotification = async (notificationData) => {
-  try {
-    const response = await API.post('/notifications/send', notificationData);
-    return response.data;
-  } catch (error) {
-    console.error('Error sending notification:', error);
-    throw error.response?.data?.message || 'Failed to send notification';
-  }
-};
-
-// ✅ Fetch Received Notifications (for a specific user)
-export const fetchNotificationsForUser = async (userId) => {
-  try {
-    const response = await API.get(`/notifications/user/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching notifications:', error);
-    throw error.response?.data?.message || 'Failed to fetch notifications';
-  }
-};
-
-export const getNotificationsByUserId = async (userId) => {
-  try {
-    const response = await API.get(`/notifications/${userId}`);
-    return Array.isArray(response.data) ? response.data : [];
-  } catch (error) {
-    console.error("API error fetching notifications:", error);
-    throw error;
-  }
-};
 // ✅ Submit Activity Sheet
 export const submitActivitySheet = async (activityData) => {
   try {
@@ -161,28 +101,6 @@ export const getActivitySheet = async (sheetId) => {
   }
 };
 
-// ✅ Get current valid spotlight (for homepage)
-export const getSpotlightContent = async () => {
-  try {
-    const response = await API.get('/spotlight');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching spotlight:', error);
-    return { message: '🚀 Welcome to Final Year Project Portal | PCCOE Pune | AY 2024–25' }; // fallback
-  }
-};
-
-// ✅ Coordinator: Add or update new spotlight
-export const updateSpotlightContent = async (spotlightData) => {
-  try {
-    const response = await API.post('/spotlight', spotlightData);
-    return response.data;
-  } catch (error) {
-    console.error('Error updating spotlight:', error);
-    throw error.response?.data?.message || 'Failed to update spotlight';
-  }
-};
-
 //check pending invites
 export const checkPendingInvites = async (userId) => {
   try {
@@ -209,21 +127,6 @@ export const postPatentDetails = async (patentData) =>{
   }
 };
 
-// Fetch guides for a department
-// FIXED: Pass userId, not department
-export const fetchGuidesByUserId = async (userId) => {
-  try {
-    console.log('Fetching guides for userId:', userId);
-    const response = await API.get(`/guides/by-department/${userId}`);
-    console.log("Sent request");
-    return response.data; // Expected: { guides: [...] }
-  } catch (error) {
-    console.error('Error fetching guides:', error);
-    throw error.response?.data?.message || 'Failed to fetch guide list';
-  }
-};
-
-
 // ✅ Submit guide preferences for a group
 export const submitGuidePreferences = async ({ groupId, preferences }) => {
   try {
@@ -236,27 +139,4 @@ export const submitGuidePreferences = async ({ groupId, preferences }) => {
     console.error('Error submitting guide preferences:', error);
     throw error.response?.data?.message || 'Failed to submit guide preferences';
   }
-};
-
-export const getGuideInvites = async () => {
-  const token = localStorage.getItem('token');
-  console.log('Fetching guide invites with token:', token);
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-  const res = await API.get('/guides/invites', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  console.log('Guide invites response:', res.data);
-  return res.data; // { invites: [...] }
-};
-
-export const respondToInvite = async (preferenceId, action) => {
-  const token = localStorage.getItem('token');
-  const res = await API.post(
-    '/guides/respond-invite',
-    { preferenceId, action },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return res.data; // { message: "..."}
 };

@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { createGroup,respondToInvite,checkUserGroupStatus,getInvitations,getGroupMemberStatuses,getPendingInvites,submitGuidePreferences} = require('../controllers/groupController');
+const { createGroup,
+    respondToInvite,
+    checkUserGroupStatus,
+    getInvitations,
+    getGroupMemberStatuses,
+    getPendingInvites,
+    submitGuidePreferences,
+ 
+
+    } = require('../controllers/groupController');
 router.post('/create', createGroup);
 router.post('/respond', respondToInvite);
 router.get('/user/:userId', checkUserGroupStatus);

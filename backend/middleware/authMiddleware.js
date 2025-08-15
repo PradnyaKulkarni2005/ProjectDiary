@@ -16,8 +16,12 @@ exports.protect = (req, res, next) => {
     // Decode the token using your secret key
     const decoded = jwt.verify(token, secretKey);
     // If token is valid, add the user to the request object
-    if (!decoded.id || !decoded.groupid) {
+    if (!decoded.id) {
       return res.status(401).json({ message: 'Invalid token payload' });
+    }
+    // Check if the user is a student and has a group ID
+     if (decoded.role === 'student' && !decoded.groupid) {
+      return res.status(401).json({ message: 'Student token missing group ID' });
     }
     req.user = decoded; //contains id,role,groupid
     // Call the next middleware or route handler

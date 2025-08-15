@@ -1,0 +1,121 @@
+:root {
+  --primary: #2574f4;
+  --accept: #4caf50;
+  --reject: #f44336;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.guide-notifications {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: var(--glass-bg);
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(10px);
+  font-family: 'Segoe UI', sans-serif;
+  animation: fadeInUp 0.7s ease-out;
+}
+
+.guide-notifications h2 {
+  font-size: 28px;
+  color: #222;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.invite-card {
+  background: #fff;
+  border-left: 6px solid var(--primary);
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.invite-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.invite-card p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 15px;
+}
+
+.invite-members {
+  margin-top: 10px;
+  padding-left: 20px;
+  color: #444;
+  font-size: 14px;
+}
+
+.invite-members li {
+  list-style: disc;
+  margin: 4px 0;
+}
+
+.invite-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.invite-actions button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.invite-actions button:first-child {
+  background-color: var(--accept);
+}
+
+.invite-actions button:last-child {
+  background-color: var(--reject);
+}
+
+.invite-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.invite-actions button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+/* Fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .guide-notifications {
+    padding: 20px;
+  }
+
+  .invite-actions {
+    flex-direction: column;
+  }
+
+  .invite-actions button {
+    width: 100%;
+  }
+}
