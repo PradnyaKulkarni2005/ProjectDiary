@@ -299,9 +299,8 @@ exports.getPendingInvites = async (req, res) => {
 
 // Submit Guide Preferences
 exports.submitGuidePreferences = async (req, res) => {
-  // body should contain groupId and an array of preferences
   const { groupId, preferences } = req.body;
-// validating the groupId and preferences , preferences should be an array of exactly 3 guide IDs
+
   if (!groupId || !preferences || !Array.isArray(preferences) || preferences.length !== 3) {
     return res.status(400).json({ message: 'Exactly 3 guide preferences are required' });
   }
@@ -314,12 +313,10 @@ exports.submitGuidePreferences = async (req, res) => {
     }
 
     // Prevent resubmission
-    // Check if preferences already exist for this group
     const prefCheck = await db.query(
       'SELECT * FROM guide_preferences WHERE group_id = $1',
       [groupId]
     );
-    // If preferences already exist, return conflict status
     if (prefCheck.rows.length > 0) {
       return res.status(409).json({ message: 'Preferences already submitted' });
     }
@@ -327,10 +324,51 @@ exports.submitGuidePreferences = async (req, res) => {
     // Insert preferences
     for (let i = 0; i < preferences.length; i++) {
       await db.query(
-        `INSERT INTO guide_preferences (group_id, guide_id, preference_order,status) VALUES ($1, $2, $3,'pending')`,
+        `INSERT INTO guide_preferences (group_id, guide_id, preference_order,status) 
+         VALUES ($1, $2, $3, 'pending')`,
         [groupId, preferences[i], i + 1]
       );
     }
+
+    // ✅ Fetch team members for notifications
+    const teamMembers = await db.query(
+      `SELECT u.id, u.email 
+       FROM group_members gm
+       JOIN users u ON gm.user_id = u.id
+       WHERE gm.group_id = $1`, 
+      [groupId]
+    );
+    console.log('Team members:', teamMembers.rows);
+
+    // ✅ Send notifications to each guide in preferences
+    for (let i = 0; i < preferences.length; i++) {
+  const guideId = preferences[i];
+
+  // Get corresponding user_id for this guide
+  const userRes = await db.query(
+    `SELECT id FROM users WHERE email = (SELECT email FROM guides WHERE id = $1)`,
+    [guideId]
+  );
+
+  if (userRes.rows.length === 0) {
+    console.warn(`No user found for guide ${guideId}`);
+    continue;
+  }
+  
+
+  const userId = userRes.rows[0].id;
+  console.log(`Sending notification to userId ${userId} for guide ${guideId}`);
+  // Insert notification for the guide's user account
+  await db.query(
+    `INSERT INTO notifications (user_id, message, type) 
+     VALUES ($1, $2, 'group_invite')`,
+    [
+      userId, 
+      `You have been invited to guide Group ${groupId}. Members: ${teamMembers.rows.map(m => m.email).join(', ')}`
+    ]
+  );
+  console.log(`✅ Notification sent to userId ${userId} for guide ${guideId}`);
+}
 
     res.status(201).json({ message: 'Guide preferences submitted successfully' });
   } catch (error) {
