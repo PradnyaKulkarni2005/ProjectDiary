@@ -60,8 +60,8 @@
 
 /* Main Buttons */
 .dashboard-button,
-.logout-button,
-.hero-button {
+.logoutbutton,
+.herobutton {
   margin-top: 24px;
   padding: 12px 18px;
   border-radius: 25px;

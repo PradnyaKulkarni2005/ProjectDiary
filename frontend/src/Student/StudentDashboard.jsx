@@ -42,6 +42,7 @@ export default function StudentDashboard() {
   const [showGuidePref, setShowGuidePref] = useState(false);
   const [isLeader, setIsLeader] = useState(false);
   const [eligibleForGuidePreferences, setEligibleForGuidePreferences] = useState(false);
+  const [allMembersAccepted, setAllMembersAccepted] = useState(false); // 🟢 NEW
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -66,8 +67,10 @@ export default function StudentDashboard() {
         setGroupId(groupRes.groupId || null);
         setIsLeader(groupRes.isLeader || false);
         setEligibleForGuidePreferences(groupRes.eligibleForGuidePreferences || false);
+        setAllMembersAccepted(groupRes.allMembersAccepted || false); // 🟢 capture from API
 
-        // Auto-open guide preference form if eligible
+        console.log('Group status:', groupRes);
+
         if (groupRes.isLeader && groupRes.eligibleForGuidePreferences) {
           setShowGuidePref(true);
         }
@@ -98,8 +101,13 @@ export default function StudentDashboard() {
     setRefreshKey((prev) => prev + 1); // Refresh group status
   };
 
+  // 🟢 Updated renderMenu
   const renderMenu = () => {
     if (groupExists) {
+      if (!allMembersAccepted) {
+        return ['Notifications']; // Only show notifications until all accept
+      }
+
       const baseMenu = [
         'Activity Sheet',
         'Meetings',
@@ -109,7 +117,6 @@ export default function StudentDashboard() {
         'Notifications',
       ];
 
-      // Add option for guide preferences if leader & eligible
       if (isLeader && eligibleForGuidePreferences) {
         baseMenu.unshift('Submit Guide Preferences');
       }
@@ -122,10 +129,10 @@ export default function StudentDashboard() {
     }
   };
 
+  // 🟢 Updated renderComponent
   const renderComponent = () => {
     if (loading) return <div>Loading...</div>;
 
-    // Show Guide Preferences if set
     if (showGuidePref) {
       return (
         <GuidePreferences
@@ -147,7 +154,7 @@ export default function StudentDashboard() {
             <CreateGroup
               onGroupCreated={(newGroupId) => {
                 setGroupId(newGroupId);
-                setShowGuidePref(true); // Show guide form after group creation
+                setShowGuidePref(true);
               }}
             />
           );
@@ -161,6 +168,16 @@ export default function StudentDashboard() {
         default:
           return <div>Select a section from the menu.</div>;
       }
+    }
+
+    // 🟢 Restrict access until all members accepted
+    if (groupExists && !allMembersAccepted) {
+      return (
+        <div>
+          Waiting for all group members to accept the invitation.  
+          <Notifications currentUser={currentUser} />
+        </div>
+      );
     }
 
     switch (selectedMenu) {
@@ -216,10 +233,10 @@ export default function StudentDashboard() {
             </div>
           ))}
 
-          <button className="hero-button" onClick={() => navigate('/student-dashboard')}>
+          <button className="herobutton" onClick={() => navigate('/student-dashboard')}>
             Back to Dashboard
           </button>
-          <button className="logout-button" onClick={handleLogout}>
+          <button className="logoutbutton" onClick={handleLogout}>
             <FaSignOutAlt style={{ marginRight: '8px' }} />
             Logout
           </button>
