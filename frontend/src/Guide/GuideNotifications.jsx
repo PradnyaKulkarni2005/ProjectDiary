@@ -52,34 +52,36 @@ export default function GuideNotifications() {
       <h2>Pending Group Invites</h2>
       {invites.map(invite => (
         <div key={invite.preference_id} className="invite-card">
-          <p><strong>Group ID:</strong> {invite.group_id}</p>
+          <p><strong>Team Name:</strong> {invite.team_name}</p>
+          <p><strong>Project Title:</strong> {invite.project_title}</p>
+          <p><strong>Description:</strong> {invite.description}</p>
           <p><strong>Status:</strong> {invite.status}</p>
+          
           <p><strong>Members:</strong></p>
           <ul className="invite-members">
             {invite.members.map(m => <li key={m.id}>{m.email}</li>)}
           </ul>
 
-         <div className="invite-actions">
-  {(!invite.group_guide_selected && invite.status === 'pending') ? (
-    <>
-      <button
-        onClick={() => handleResponse(invite.preference_id, 'accept')}
-        disabled={actionLoading === invite.preference_id}
-      >
-        {actionLoading === invite.preference_id ? 'Processing...' : 'Accept'}
-      </button>
-      <button
-        onClick={() => handleResponse(invite.preference_id, 'reject')}
-        disabled={actionLoading === invite.preference_id}
-      >
-        {actionLoading === invite.preference_id ? 'Processing...' : 'Reject'}
-      </button>
-    </>
-  ) : (
-    <p className="guide-allocated">Guide allocated</p>
-  )}
-</div>
-
+          <div className="invite-actions">
+            {(!invite.group_guide_selected && invite.status === 'pending') ? (
+              <>
+                <button
+                  onClick={() => handleResponse(invite.preference_id, 'accept')}
+                  disabled={actionLoading === invite.preference_id}
+                >
+                  {actionLoading === invite.preference_id ? 'Processing...' : 'Accept'}
+                </button>
+                <button
+                  onClick={() => handleResponse(invite.preference_id, 'reject')}
+                  disabled={actionLoading === invite.preference_id}
+                >
+                  {actionLoading === invite.preference_id ? 'Processing...' : 'Reject'}
+                </button>
+              </>
+            ) : (
+              <p className="guide-allocated">Guide allocated</p>
+            )}
+          </div>
         </div>
       ))}
     </div>
