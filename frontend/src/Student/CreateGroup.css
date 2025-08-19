@@ -1,119 +1,37 @@
-/* ===== Clean Dark Blue Container ===== */
-.guide-preferences-container {
-  padding: 2.5rem;
-  max-width: 880px;
+.create-group-container {
+  padding: 2rem;
+  max-width: 800px;
   margin: auto;
-  background-color: #0f1b33; /* Deep navy */
-  border-radius: 18px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
-  animation: fadeIn 0.7s ease;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  background: #f5f5f5;
+  border-radius: 10px;
 }
 
-/* ===== Heading ===== */
-.guide-preferences-container h2 {
-  text-align: center;
-  font-size: 1.9rem;
-  font-weight: 700;
-  color: #ffffff;
+.group-section {
   margin-bottom: 2rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 0.8rem;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
-/* ===== Guide List Grid ===== */
-.guide-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.25rem;
-}
-
-/* ===== Guide Card ===== */
-.guide-item {
-  position: relative;
-  background-color: #162544; /* Dark blue card */
-  border-radius: 14px;
-  padding: 1.2rem 1.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: pointer;
-  transition: all 0.25s ease;
-  color: #dce4f5;
-}
-
-.guide-item:hover {
-  border-color: #2d8cff;
-  box-shadow: 0 6px 20px rgba(45, 140, 255, 0.15);
-  transform: translateY(-4px);
-}
-
-/* ===== Selected State ===== */
-.guide-item.selected {
-  background-color: #1d3d6e;
-  border-color: #2d8cff;
-  box-shadow: 0 6px 20px rgba(45, 140, 255, 0.25);
-  color: #ffffff;
-}
-
-/* ===== Preference Tag ===== */
-.preference-tag {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #2d8cff;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-
-/* ===== Submit Button ===== */
-.guide-preferences-container button {
+input {
+  display: block;
   width: 100%;
-  padding: 14px;
-  background-color: #2d8cff;
+  margin: 0.5rem 0;
+  padding: 8px;
+}
+
+.submit-btn {
+  padding: 10px 20px;
+  background: #0077cc;
   color: white;
-  font-weight: 600;
-  font-size: 1rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: all 0.25s ease;
 }
 
-.guide-preferences-container button:hover {
-  background-color: #2372d9;
-  box-shadow: 0 6px 18px rgba(45, 140, 255, 0.25);
-  transform: translateY(-2px);
-}
-
-.guide-preferences-container button:disabled {
-  background-color: #3a4c6e;
-  cursor: not-allowed;
-}
-
-/* ===== Animation ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 650px) {
-  .guide-preferences-container {
-    padding: 1.5rem;
-  }
-
-  .guide-preferences-container h2 {
-    font-size: 1.6rem;
-  }
+.member-group {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
 }

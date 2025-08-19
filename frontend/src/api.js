@@ -225,11 +225,15 @@ export const fetchGuidesByUserId = async (userId) => {
 
 
 // ✅ Submit guide preferences for a group
-export const submitGuidePreferences = async ({ groupId, preferences }) => {
+
+export const submitGuidePreferences = async ({ groupId, preferences, teamName, projectTitle, description }) => {
   try {
     const response = await API.post('/groups/submit-guide-preferences', {
       groupId,
-      preferences, // Expected: [guideId1, guideId2, guideId3]
+      preferences, 
+      teamName,        
+      projectTitle,   
+      description      
     });
     return response.data;
   } catch (error) {
@@ -250,7 +254,6 @@ export const getGuideInvites = async () => {
   console.log('Guide invites response:', res.data);
   return res.data; // { invites: [...] }
 };
-
 export const respondToInvite = async (preferenceId, action) => {
   const token = localStorage.getItem('token');
   const res = await API.post(

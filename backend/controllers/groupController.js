@@ -4,9 +4,9 @@ const db = require('../config/db');
 exports.createGroup = async (req, res) => {
   const { leaderId, members } = req.body;
 
-  console.log('🔵 Received request to create group');
-  console.log('➡️ Leader ID:', leaderId);
-  console.log('➡️ Members:', members);
+  console.log('Received request to create group');
+  console.log('Leader ID:', leaderId);
+  console.log('Members:', members);
 
   try {
     // Step 1: Create the group
@@ -15,41 +15,41 @@ exports.createGroup = async (req, res) => {
       [leaderId, 'pending']
     );
     const groupId = groupResult.rows[0].id;
-    console.log(`✅ Group created with ID: ${groupId}`);
+    console.log(`Group created with ID: ${groupId}`);
 
     // Step 2: Add leader to the group with accepted status
     await db.query(
       'INSERT INTO group_members (group_id, user_id, status) VALUES ($1, $2, $3)',
       [groupId, leaderId, 'accepted']
     );
-    console.log(`✅ Leader (ID: ${leaderId}) added to group_members`);
+    console.log(`Leader (ID: ${leaderId}) added to group_members`);
 
     const skippedEmails = [];
     const successEmails = [];
 
     // Step 3: Process each member
     for (const member of members) {
-      console.log(`🔍 Looking for user with email: ${member.email}`);
+      console.log(`Looking for user with email: ${member.email}`);
       const userResult = await db.query(
         'SELECT id FROM users WHERE email = $1',
         [member.email]
       );
 
       if (userResult.rows.length === 0) {
-        console.warn(`⚠️ Member with email ${member.email} not found. Skipping.`);
+        console.warn(`Member with email ${member.email} not found. Skipping.`);
         skippedEmails.push(member.email);
         continue;
       }
 
       const userId = userResult.rows[0].id;
-      console.log(`✅ Found userId ${userId} for email ${member.email}`);
+      console.log(`Found userId ${userId} for email ${member.email}`);
 
       // Add member to group with 'pending' status
       await db.query(
         'INSERT INTO group_members (group_id, user_id, status) VALUES ($1, $2, $3)',
         [groupId, userId, 'pending']
       );
-      console.log(`✅ Added userId ${userId} to group_members`);
+      console.log(`Added userId ${userId} to group_members`);
 
       // Send notification
       await db.query(
@@ -61,7 +61,7 @@ exports.createGroup = async (req, res) => {
           false,
         ]
       );
-      console.log(`📬 Notification sent to userId ${userId}`);
+      console.log(` Notification sent to userId ${userId}`);
 
       successEmails.push(member.email);
     }
@@ -74,7 +74,7 @@ exports.createGroup = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('❌ Group creation error:', err);
+    console.error('Group creation error:', err);
     return res.status(500).json({ error: 'Failed to create group' });
   }
 };
@@ -299,7 +299,7 @@ exports.getPendingInvites = async (req, res) => {
 
 // Submit Guide Preferences
 exports.submitGuidePreferences = async (req, res) => {
-  const { groupId, preferences } = req.body;
+  const { groupId, preferences, teamName, projectTitle, description } = req.body;
 
   if (!groupId || !preferences || !Array.isArray(preferences) || preferences.length !== 3) {
     return res.status(400).json({ message: 'Exactly 3 guide preferences are required' });
@@ -311,6 +311,15 @@ exports.submitGuidePreferences = async (req, res) => {
     if (groupCheck.rows.length === 0) {
       return res.status(404).json({ message: 'Group not found' });
     }
+
+    // ✅ Update project details (NEW STEP)
+    await db.query(
+  `UPDATE project_groups 
+   SET team_name = $1, project_title = $2, description = $3
+   WHERE id = $4`,
+  [teamName, projectTitle, description, groupId]
+);
+
 
     // Prevent resubmission
     const prefCheck = await db.query(
@@ -324,7 +333,7 @@ exports.submitGuidePreferences = async (req, res) => {
     // Insert preferences
     for (let i = 0; i < preferences.length; i++) {
       await db.query(
-        `INSERT INTO guide_preferences (group_id, guide_id, preference_order,status) 
+        `INSERT INTO guide_preferences (group_id, guide_id, preference_order, status) 
          VALUES ($1, $2, $3, 'pending')`,
         [groupId, preferences[i], i + 1]
       );
@@ -338,39 +347,34 @@ exports.submitGuidePreferences = async (req, res) => {
        WHERE gm.group_id = $1`, 
       [groupId]
     );
-    console.log('Team members:', teamMembers.rows);
 
     // ✅ Send notifications to each guide in preferences
     for (let i = 0; i < preferences.length; i++) {
-  const guideId = preferences[i];
+      const guideId = preferences[i];
 
-  // Get corresponding user_id for this guide
-  const userRes = await db.query(
-    `SELECT id FROM users WHERE email = (SELECT email FROM guides WHERE id = $1)`,
-    [guideId]
-  );
+      // Get corresponding user_id for this guide
+      const userRes = await db.query(
+        `SELECT id FROM users WHERE email = (SELECT email FROM guides WHERE id = $1)`,
+        [guideId]
+      );
 
-  if (userRes.rows.length === 0) {
-    console.warn(`No user found for guide ${guideId}`);
-    continue;
-  }
-  
+      if (userRes.rows.length === 0) {
+        console.warn(`No user found for guide ${guideId}`);
+        continue;
+      }
 
-  const userId = userRes.rows[0].id;
-  console.log(`Sending notification to userId ${userId} for guide ${guideId}`);
-  // Insert notification for the guide's user account
-  await db.query(
-    `INSERT INTO notifications (user_id, message, type) 
-     VALUES ($1, $2, 'group_invite')`,
-    [
-      userId, 
-      `You have been invited to guide Group ${groupId}. Members: ${teamMembers.rows.map(m => m.email).join(', ')}`
-    ]
-  );
-  console.log(`✅ Notification sent to userId ${userId} for guide ${guideId}`);
-}
+      const userId = userRes.rows[0].id;
+      await db.query(
+        `INSERT INTO notifications (user_id, message, type) 
+         VALUES ($1, $2, 'group_invite')`,
+        [
+          userId, 
+          `You have been invited to guide Group ${groupId}. Members: ${teamMembers.rows.map(m => m.email).join(', ')}`
+        ]
+      );
+    }
 
-    res.status(201).json({ message: 'Guide preferences submitted successfully' });
+    res.status(201).json({ message: 'Guide preferences and project details submitted successfully' });
   } catch (error) {
     console.error('Error submitting guide preferences:', error);
     res.status(500).json({ message: 'Server error while submitting preferences' });

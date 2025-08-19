@@ -1,4 +1,3 @@
-// src/components/GuidePreferences.js
 import React, { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import './GuidePreferences.css';
@@ -9,6 +8,12 @@ export default function GuidePreferences({ groupId, onSubmitted }) {
   const [preferences, setPreferences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // New states for project details
+  const [showProjectForm, setShowProjectForm] = useState(false);
+  const [teamName, setTeamName] = useState('');
+  const [projectTitle, setProjectTitle] = useState('');
+  const [description, setDescription] = useState('');
 
   useEffect(() => {
     const fetchGuides = async () => {
@@ -30,7 +35,7 @@ export default function GuidePreferences({ groupId, onSubmitted }) {
     };
 
     fetchGuides();
-  }, []); // No dependencies needed here
+  }, []);
 
   const togglePreference = (guideId) => {
     setPreferences((prev) => {
@@ -54,18 +59,29 @@ export default function GuidePreferences({ groupId, onSubmitted }) {
     setSubmitting(true);
     console.log('Submitting preferences:', preferences);
     try {
-      const res = await submitGuidePreferences({ groupId, preferences });
+      const res = await submitGuidePreferences({
+        groupId,
+        preferences,
+        teamName: showProjectForm && teamName ? teamName : null,
+        projectTitle: showProjectForm && projectTitle ? projectTitle : null,
+        description: showProjectForm && description ? description : null,
+      });
       console.log('Submit response:', res);
       if (!res || !res.message) {
         throw new Error('Invalid response from server');
-    }
+      }
 
       Swal.fire({
         icon: 'success',
         title: 'Preferences Submitted',
         text: 'Guide preferences submitted successfully!',
       });
+
       setPreferences([]);
+      setTeamName('');
+      setProjectTitle('');
+      setDescription('');
+      setShowProjectForm(false);
 
       if (onSubmitted) {
         onSubmitted();
@@ -82,6 +98,37 @@ export default function GuidePreferences({ groupId, onSubmitted }) {
 
   return (
     <div className="guide-preferences-container">
+      {!showProjectForm ? (
+        <div className="project-choice">
+          <h2>Project Details</h2>
+          <p>You can skip this step or add details now.</p>
+          <button className='submit' onClick={() => setShowProjectForm(true)}>Add Project Details</button>
+          <button onClick={() => setShowProjectForm(false)}>Skip</button>
+        </div>
+      ) : (
+        <div className="project-details-form">
+          <h2>Enter Project Details</h2>
+          <input
+            type="text"
+            placeholder="Team Name"
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Project Title"
+            value={projectTitle}
+            onChange={(e) => setProjectTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="Project Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <button onClick={() => setShowProjectForm(false)}>Cancel</button>
+        </div>
+      )}
+
       <h2>Select 3 Guide Preferences</h2>
       <ul className="guide-list">
         {guides.map((guide) => (

@@ -19,13 +19,18 @@ exports.getGuidesByStudentUserId = async (req, res) => {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    const department = studentResult.rows[0].department;
+    const department = studentResult.rows[0].department.trim();
+console.log("Cleaned department:", JSON.stringify(department));
 
-    // Step 2: Get guides from that department
-    const guidesResult = await db.query(
-      'SELECT id, name, email, contact FROM guides WHERE department = $1',
-      [department]
-    );
+const guidesResult = await db.query(
+  `SELECT id, name, email, contact 
+   FROM guides 
+   WHERE department = $1`,
+  [department]
+);
+
+
+
     console.log('Guides fetched:', guidesResult);
 
     res.status(200).json({ guides: guidesResult.rows });
@@ -34,7 +39,6 @@ exports.getGuidesByStudentUserId = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch guides' });
   }
 };
-
 
 // get group invitations to guide
 exports.getGuideInvites = async (req, res) => {
@@ -51,15 +55,24 @@ exports.getGuideInvites = async (req, res) => {
 
     const guideId = guideResult.rows[0].id;
 
-    // Step 2: fetch invites using guideId
+    // Step 2: fetch invites with team details
     const invites = await db.query(
-      `SELECT gp.id as preference_id, gp.group_id, gp.status,
-              json_agg(json_build_object('id', u.id, 'email', u.email)) as members
+      `SELECT 
+          gp.id AS preference_id,
+          gp.status,
+          pg.team_name,
+          pg.project_title,
+          pg.description,
+          json_agg(
+            json_build_object('id', u.id, 'email', u.email)
+          ) AS members
        FROM guide_preferences gp
+       JOIN project_groups pg ON pg.id = gp.group_id
        JOIN group_members gm ON gm.group_id = gp.group_id
        JOIN users u ON u.id = gm.user_id
-       WHERE gp.guide_id = $1 AND gp.status = 'pending'
-       GROUP BY gp.id, gp.group_id, gp.status`,
+       WHERE gp.guide_id = $1 
+         AND gp.status = 'pending'
+       GROUP BY gp.id, gp.status, pg.team_name, pg.project_title, pg.description`,
       [guideId]
     );
 
@@ -69,7 +82,6 @@ exports.getGuideInvites = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 
 // accepting or rejecting the invite
@@ -140,3 +152,47 @@ exports.respondToInvite = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+// // Get activity sheets for a guide
+// exports.getGuideActivitySheets = async (req, res) => {
+//   try {
+//     const { id, role } = req.user || {};
+
+//     if (!id || role !== 'guide') {
+//       return res.status(403).json({ message: 'Not authorized as guide' });
+//     }
+
+//     const { month } = req.query; 
+
+//     let query = `
+//       SELECT 
+//         a.sheetid, a.groupid, a.month, a.task, a.scope_of_work, a.proposed_solution,
+//         a.guide_remarks, a.submission_date,
+//         pg.team_name, pg.project_title
+//       FROM activity_sheets a
+//       JOIN project_groups pg ON pg.id = a.groupid
+//       JOIN guide_preferences gp ON gp.group_id = pg.id
+//       WHERE gp.guide_id = $1 AND gp.status = 'accepted'
+//     `;
+
+//     const params = [id];
+// // If month is provided, filter by it
+//     if (month) {
+//       query += ' AND a.month = $2';
+//       params.push(month);
+//     }
+// // Order by submission date
+
+//     query += ' ORDER BY a.submission_date DESC';
+
+//     const result = await db.query(query, params);
+
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({ message: 'No activity sheets found for your groups' });
+//     }
+
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('getGuideActivitySheets error:', error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
