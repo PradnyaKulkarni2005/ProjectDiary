@@ -152,6 +152,135 @@ exports.respondToInvite = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+// ➡️ Add new review assessment
+// controllers/reviewAssessment.js
+exports.addReviewAssessment = async (req, res) => {
+  let { team_id, stage_number, review_number, marks, comments } = req.body;
+  let guide_id;
+
+  try {
+    // 1. Get user email
+    const { rows: userRows } = await db.query(
+      "SELECT email FROM users WHERE id = $1",
+      [req.user.id]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(400).json({ success: false, error: "User not found." });
+    }
+
+    const userEmail = userRows[0].email;
+
+    // 2. Get guide id
+    const { rows: guideRows } = await db.query(
+      "SELECT id FROM guides WHERE email = $1",
+      [userEmail]
+    );
+
+    if (guideRows.length === 0) {
+      return res.status(400).json({ success: false, error: "Guide not found." });
+    }
+
+    guide_id = guideRows[0].id;
+
+    // 3. Validate
+    if (!["Review1", "Review2"].includes(review_number)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid review_number. Must be 'Review1' or 'Review2'.",
+      });
+    }
+    if (![1, 2].includes(stage_number)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid stage_number. Must be 1 or 2.",
+      });
+    }
+
+    // 4. Insert or update
+    const query = `
+      INSERT INTO review_assessments 
+      (team_id, guide_id, stage_number, review_number, marks, comments) 
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (team_id, guide_id, stage_number, review_number)
+      DO UPDATE SET marks = EXCLUDED.marks, comments = EXCLUDED.comments
+      RETURNING *;
+    `;
+    const values = [team_id, guide_id, stage_number, review_number, marks, comments];
+
+    const { rows } = await db.query(query, values);
+    res.status(201).json({ success: true, data: rows[0] });
+  } catch (error) {
+    console.error("❌ Error adding review assessment:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+
+
+// Get all reviews for a team, grouped by stage
+exports.getReviewsByTeam = async (req, res) => {
+  const { teamId } = req.params;
+
+  try {
+    const query = `
+      SELECT 
+        ra.id,
+        ra.stage_number,
+        ra.review_number,
+        ra.marks,
+        ra.comments,
+        ra.assessment_date,
+        g.name as guide_name
+      FROM review_assessments ra
+      JOIN guides g ON ra.guide_id = g.id
+      WHERE team_id = $1
+      ORDER BY ra.stage_number ASC, ra.review_number ASC;
+    `;
+    const { rows } = await db.query(query, [teamId]);
+
+    // Group by stage_number
+    const grouped = rows.reduce((acc, review) => {
+      if (!acc[review.stage_number]) acc[review.stage_number] = [];
+      acc[review.stage_number].push(review);
+      return acc;
+    }, {});
+
+    res.status(200).json({ success: true, data: rows });
+
+  } catch (error) {
+    console.error("❌ Error fetching team reviews:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+// Update a review (in case guide wants to edit)
+exports.updateReviewAssessment = async (req, res) => {
+  const { id } = req.params;
+  const { marks, comments } = req.body;
+
+  try {
+    const query = `
+      UPDATE review_assessments 
+      SET marks = $1, comments = $2, assessment_date = NOW()
+      WHERE id = $3
+      RETURNING *;
+    `;
+    const values = [marks, comments, id];
+
+    const { rows } = await db.query(query, values);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Review not found" });
+    }
+    res.status(200).json({ success: true, data: rows[0] });
+  } catch (error) {
+    console.error("❌ Error updating review:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
 // // Get activity sheets for a guide
 // exports.getGuideActivitySheets = async (req, res) => {
 //   try {

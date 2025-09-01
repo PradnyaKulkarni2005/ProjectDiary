@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { submitActivitySheet, getProjectGroup, getActivitySheet } from '../api';
-import './ActivitySheet.css';
+import styles from'./ActivitySheet.module.css';
 
 export default function ActivitySheet() {
   const [selectedMonth, setSelectedMonth] = useState('Month1');
@@ -123,24 +123,25 @@ export default function ActivitySheet() {
   };
 
   return (
-    <div className="activity-sheet">
-      <div className="months-row">
+    <div className={styles.activitysheet}>
+      <div className={styles.monthsrow}>
         {['Month1', 'Month2', 'Month3', 'Month4'].map((month) => (
           <button
-            key={month}
-            className={`month-button ${selectedMonth === month ? 'active' : ''}`}
-            onClick={() => setSelectedMonth(month)}
-          >
-            {month}
-          </button>
+  key={month}
+  className={`${styles["month-button"]} ${selectedMonth === month ? styles.active : ""}`}
+  onClick={() => setSelectedMonth(month)}
+>
+  {month}
+</button>
+
         ))}
       </div>
 
-      <h3 className="sheet-title">Activity Sheet - {selectedMonth}</h3>
+      <h3 className={styles.sheettitle}>Activity Sheet - {selectedMonth}</h3>
 
-      {message && <p className="message">{message}</p>}
+      {message && <p className={styles.message}>{message}</p>}
 
-      <label className="input-label">Task / Activity Scheduled</label>
+      <label className={styles.inputlabel}>Task / Activity Scheduled</label>
       <textarea
         value={formData.task}
         onChange={handleChange('task')}
@@ -148,7 +149,7 @@ export default function ActivitySheet() {
         placeholder="Enter scheduled tasks..."
       />
 
-      <label className="input-label">Scope of Work</label>
+      <label className={styles.inputlabel}>Scope of Work</label>
       <textarea
         value={formData.scope}
         onChange={handleChange('scope')}
@@ -156,7 +157,7 @@ export default function ActivitySheet() {
         placeholder="Describe scope..."
       />
 
-      <label className="input-label">Proposed Solution</label>
+      <label className={styles.inputlabel}>Proposed Solution</label>
       <textarea
         value={formData.solution}
         onChange={handleChange('solution')}
@@ -164,7 +165,7 @@ export default function ActivitySheet() {
         placeholder="Proposed solution..."
       />
 
-      <label className="input-label">Guide Remarks</label>
+      <label className={styles.inputlabel}>Guide Remarks</label>
       <textarea
         value={formData.remarks}
         readOnly
@@ -173,7 +174,7 @@ export default function ActivitySheet() {
 
       {isLeader && (
         <button
-          className="submit-button"
+          className={styles.submitbutton}
           onClick={handleSubmit}
           disabled={submitting}
         >
