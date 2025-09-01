@@ -263,3 +263,38 @@ export const respondToInvite = async (preferenceId, action) => {
   );
   return res.data; // { message: "..."}
 };
+
+
+// --- New: Review Assessment APIs ---
+// Add review assessment
+export const addReviewAssessment = async (assessmentData, token) => {
+  try {
+    const response = await API.post("/guides/reviews", assessmentData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || "Failed to add review assessment";
+  }
+};
+
+
+
+export const getReviewsByTeam = async (teamId) => {
+  try {
+    const response = await API.get(`/guides/reviews/${teamId}`);
+    return response.data.data; // <-- return only the array
+  } catch (error) {
+    throw error.response?.data?.error || "Failed to fetch reviews";
+  }
+};
+
+
+export const updateReviewAssessment = async (id, data) => {
+  try {
+    const response = await API.put(`/guides/reviews/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.error || "Failed to update review assessment";
+  }
+};
