@@ -153,128 +153,167 @@ exports.respondToInvite = async (req, res) => {
   }
 };
 
+// Get all groups assigned to this guide
+// backend/controllers/guideController.js
+// backend/controllers/guideController.js
+exports.getMyGroups = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-// ➡️ Add new review assessment
-// controllers/reviewAssessment.js
+    // Get the guide's email from users table
+    const userResult = await db.query(
+      "SELECT email FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const guideEmail = userResult.rows[0].email;
+
+    // Get the guide's actual guide ID from guides table
+    const guideResult = await db.query(
+      "SELECT id FROM guides WHERE email = $1",
+      [guideEmail]
+    );
+
+    if (guideResult.rowCount === 0) {
+      return res.status(404).json({ message: "Guide not found in guides table" });
+    }
+
+    const guideId = guideResult.rows[0].id;
+
+    // Get all groups assigned to this guide
+    const groupsResult = await db.query(
+      `SELECT g.id AS group_id, g.team_name, g.project_title
+       FROM project_groups g
+       JOIN guide_preferences gp ON gp.group_id = g.id
+       WHERE gp.guide_id = $1 AND gp.status = 'accepted'`,
+      [guideId]
+    );
+
+    res.json(groupsResult.rows);
+  } catch (err) {
+    console.error("Error fetching guide groups:", err);
+    res.status(500).json({ message: "Failed to fetch guide groups" });
+  }
+};
+
+
 exports.addReviewAssessment = async (req, res) => {
-  let { team_id, stage_number, review_number, marks, comments } = req.body;
-  let guide_id;
+  const { stage_number, review_number, marks, comments } = req.body;
+  const guideUserId = req.user.id;   // from token
+  const team_id = req.body.group_id; // should come from frontend
 
   try {
-    // 1. Get user email
-    const { rows: userRows } = await db.query(
-      "SELECT email FROM users WHERE id = $1",
-      [req.user.id]
+    // find guide by joining users + guides on email
+    const guideResult = await db.query(
+      `SELECT g.id 
+       FROM guides g
+       JOIN users u ON g.email = u.email
+       WHERE u.id = $1`,
+      [guideUserId]
     );
 
-    if (userRows.length === 0) {
-      return res.status(400).json({ success: false, error: "User not found." });
+    if (guideResult.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "Guide profile not found." });
     }
 
-    const userEmail = userRows[0].email;
+    const guide_id = guideResult.rows[0].id;
 
-    // 2. Get guide id
-    const { rows: guideRows } = await db.query(
-      "SELECT id FROM guides WHERE email = $1",
-      [userEmail]
-    );
-
-    if (guideRows.length === 0) {
-      return res.status(400).json({ success: false, error: "Guide not found." });
-    }
-
-    guide_id = guideRows[0].id;
-
-    // 3. Validate
-    if (!["Review1", "Review2"].includes(review_number)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid review_number. Must be 'Review1' or 'Review2'.",
-      });
-    }
-    if (![1, 2].includes(stage_number)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid stage_number. Must be 1 or 2.",
-      });
-    }
-
-    // 4. Insert or update
     const query = `
       INSERT INTO review_assessments 
-      (team_id, guide_id, stage_number, review_number, marks, comments) 
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (team_id, guide_id, stage_number, review_number)
-      DO UPDATE SET marks = EXCLUDED.marks, comments = EXCLUDED.comments
+        (team_id, guide_id, stage_number, review_number, marks, comments, assessment_date) 
+      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      ON CONFLICT (team_id, stage_number, review_number) 
+      DO UPDATE SET 
+        marks = EXCLUDED.marks,
+        comments = EXCLUDED.comments,
+        guide_id = EXCLUDED.guide_id,
+        assessment_date = NOW()
       RETURNING *;
     `;
-    const values = [team_id, guide_id, stage_number, review_number, marks, comments];
 
+    const values = [team_id, guide_id, stage_number, review_number, marks, comments];
     const { rows } = await db.query(query, values);
-    res.status(201).json({ success: true, data: rows[0] });
+
+    res.status(201).json(rows[0]);
   } catch (error) {
-    console.error("❌ Error adding review assessment:", error);
+    console.error("❌ Error saving review assessment:", error);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
+
+
 
 
 
 // Get all reviews for a team, grouped by stage
-exports.getReviewsByTeam = async (req, res) => {
-  const { teamId } = req.params;
+// Controller
+exports.getGroupReviews = async (req, res) => {
+  const { groupId } = req.params;
 
   try {
-    const query = `
-      SELECT 
-        ra.id,
-        ra.stage_number,
-        ra.review_number,
-        ra.marks,
-        ra.comments,
-        ra.assessment_date,
-        g.name as guide_name
-      FROM review_assessments ra
-      JOIN guides g ON ra.guide_id = g.id
-      WHERE team_id = $1
-      ORDER BY ra.stage_number ASC, ra.review_number ASC;
-    `;
-    const { rows } = await db.query(query, [teamId]);
+    const result = await db.query(
+      `SELECT ra.id, ra.review_number, ra.marks, ra.comments, 
+              ra.assessment_date, ra.stage_number,
+              g.name AS guide_name, g.email AS guide_email
+       FROM review_assessments ra
+       JOIN guides g ON ra.guide_id = g.id
+       WHERE ra.team_id = $1
+       ORDER BY ra.stage_number, ra.review_number`,
+      [groupId]
+    );
 
-    // Group by stage_number
-    const grouped = rows.reduce((acc, review) => {
-      if (!acc[review.stage_number]) acc[review.stage_number] = [];
-      acc[review.stage_number].push(review);
-      return acc;
-    }, {});
-
-    res.status(200).json({ success: true, data: rows });
-
+    res.json(result.rows);
   } catch (error) {
-    console.error("❌ Error fetching team reviews:", error);
-    res.status(500).json({ success: false, error: "Server error" });
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+
+
 // Update a review (in case guide wants to edit)
 exports.updateReviewAssessment = async (req, res) => {
-  const { id } = req.params;
+  const { id: reviewId } = req.params; // Renamed for clarity
   const { marks, comments } = req.body;
+  const loggedInUserId = req.user.id; // From your 'protect' middleware token
 
   try {
+    // 1. Get the 'guide_id' of the logged-in user from the 'guides' table
+    const guideResult = await db.query(
+      `SELECT id FROM guides WHERE user_id = $1`, 
+      [loggedInUserId]
+    );
+
+    if (guideResult.rows.length === 0) {
+      return res.status(403).json({ success: false, error: "Forbidden: User is not a guide." });
+    }
+    const loggedInGuideId = guideResult.rows[0].id;
+
+    // 2. Modify the UPDATE query to include a check for the guide's ID
     const query = `
       UPDATE review_assessments 
       SET marks = $1, comments = $2, assessment_date = NOW()
-      WHERE id = $3
+      WHERE id = $3 AND guide_id = $4 -- <-- This is the crucial security check
       RETURNING *;
     `;
-    const values = [marks, comments, id];
+    const values = [marks, comments, reviewId, loggedInGuideId];
 
     const { rows } = await db.query(query, values);
+
+    // 3. This check now handles both "Not Found" and "Forbidden"
     if (rows.length === 0) {
-      return res.status(404).json({ success: false, error: "Review not found" });
+      return res.status(404).json({ 
+        success: false, 
+        error: "Review not found or you do not have permission to edit it." 
+      });
     }
+
     res.status(200).json({ success: true, data: rows[0] });
+
   } catch (error) {
     console.error("❌ Error updating review:", error);
     res.status(500).json({ success: false, error: "Server error" });

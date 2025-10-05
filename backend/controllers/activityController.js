@@ -143,4 +143,32 @@ exports.submitPatentDetails = async (req, res) => {
     client.release();
   }
 };
-    
+
+// get reviews by team id
+exports.getReviewsByTeamId = async (req, res) => {
+  try {
+    const { team_id } = req.params;
+    console.log('Fetching reviews for team_id:', team_id);
+   const result = await db.query(
+  `SELECT 
+      ra.id,
+      ra.review_number,
+      ra.marks,
+      ra.comments,
+      ra.assessment_date,
+      ra.stage_number,
+      g.name AS guide_name,
+      g.email AS guide_email
+   FROM review_assessments ra
+   JOIN guides g ON ra.guide_id = g.id
+   WHERE ra.team_id = $1
+   ORDER BY ra.stage_number, ra.review_number`,
+  [team_id]
+);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
