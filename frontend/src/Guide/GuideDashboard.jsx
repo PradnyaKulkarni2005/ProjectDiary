@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../Student/StudentDashboard.css';
-import GuideNotifications from './GuideNotifications';
-import ScheduleMeetings from './ScheduleMeetings';
-import ReviewEvaluation from './ReviewEvaluation';
-import GroupView from './GroupView';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../Student/StudentDashboard.css";
+import GuideNotifications from "./GuideNotifications";
+import ScheduleMeetings from "./ScheduleMeetings";
+import ReviewEvaluation from "./ReviewEvaluationGuide";
+import GroupView from "./GroupView";
+import { getMyGroups } from "../api"; // <- your Axios function
 
 // Icons
 import {
@@ -14,32 +15,29 @@ import {
   FaCalendarAlt,
   FaFileAlt,
   FaSignOutAlt,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 export default function GuideDashboard() {
-  const [selectedMenu, setSelectedMenu] = useState('Notifications');
+  const [selectedMenu, setSelectedMenu] = useState("Notifications");
   const [assignedGroups, setAssignedGroups] = useState([]);
   const [expandedGroups, setExpandedGroups] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fake guideId for testing
-    const guideId = 'mockGuide123';
-    localStorage.setItem('userId', guideId);
-
-    // Simulated group data for frontend only
-    const mockGroups = [
-      { group_id: 1 },
-      { group_id: 2 },
-      { group_id: 3 },
-    ];
-
-    setAssignedGroups(mockGroups);
+    const fetchGroups = async () => {
+      try {
+        const data = await getMyGroups(); // <- using your API helper
+        setAssignedGroups(data);
+      } catch (err) {
+        console.error("Error fetching groups:", err);
+      }
+    };
+    fetchGroups();
   }, []);
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate('/login');
+    navigate("/login");
   };
 
   const toggleGroup = (groupId) => {
@@ -50,18 +48,18 @@ export default function GuideDashboard() {
   };
 
   const renderComponent = () => {
-    if (selectedMenu === 'Notifications') {
-      return <GuideNotifications guideId="mockGuide123" />;
+    if (selectedMenu === "Notifications") {
+      return <GuideNotifications />;
     }
 
-    const [section, groupId] = selectedMenu.split(':');
+    const [section, groupId] = selectedMenu.split(":");
 
     switch (section) {
-      case 'Meetings':
+      case "Meetings":
         return <ScheduleMeetings groupId={groupId} />;
-      case 'Reviews':
+      case "Reviews":
         return <ReviewEvaluation groupId={groupId} />;
-      case 'StudentDetails':
+      case "StudentDetails":
         return <GroupView groupId={groupId} />;
       default:
         return <div>Select a section from the menu.</div>;
@@ -74,8 +72,10 @@ export default function GuideDashboard() {
         <h2 className="sidebar-title">Guide Portal</h2>
         <nav className="menu">
           <div
-            className={`menu-item ${selectedMenu === 'Notifications' ? 'active' : ''}`}
-            onClick={() => setSelectedMenu('Notifications')}
+            className={`menu-item ${
+              selectedMenu === "Notifications" ? "active" : ""
+            }`}
+            onClick={() => setSelectedMenu("Notifications")}
           >
             <FaBell /> Notifications
           </div>
@@ -87,28 +87,36 @@ export default function GuideDashboard() {
             return (
               <div key={groupId}>
                 <div
-                  className={`menu-item ${expanded ? 'active' : ''}`}
+                  className={`menu-item ${expanded ? "active" : ""}`}
                   onClick={() => toggleGroup(groupId)}
                 >
-                  <FaUsers /> Group {groupId}
+                  <FaUsers /> {group.team_name || `Group ${groupId}`}
                 </div>
 
                 {expanded && (
                   <>
                     <div
-                      className={`menu-item sub-item ${selectedMenu === `Meetings:${groupId}` ? 'active' : ''}`}
+                      className={`menu-item sub-item ${
+                        selectedMenu === `Meetings:${groupId}` ? "active" : ""
+                      }`}
                       onClick={() => setSelectedMenu(`Meetings:${groupId}`)}
                     >
                       <FaCalendarAlt /> Schedule Meetings
                     </div>
                     <div
-                      className={`menu-item sub-item ${selectedMenu === `Reviews:${groupId}` ? 'active' : ''}`}
+                      className={`menu-item sub-item ${
+                        selectedMenu === `Reviews:${groupId}` ? "active" : ""
+                      }`}
                       onClick={() => setSelectedMenu(`Reviews:${groupId}`)}
                     >
                       <FaClipboardList /> Reviews
                     </div>
                     <div
-                      className={`menu-item sub-item ${selectedMenu === `StudentDetails:${groupId}` ? 'active' : ''}`}
+                      className={`menu-item sub-item ${
+                        selectedMenu === `StudentDetails:${groupId}`
+                          ? "active"
+                          : ""
+                      }`}
                       onClick={() => setSelectedMenu(`StudentDetails:${groupId}`)}
                     >
                       <FaFileAlt /> Student Work
@@ -120,7 +128,7 @@ export default function GuideDashboard() {
           })}
 
           <button className="logout-button" onClick={handleLogout}>
-            <FaSignOutAlt style={{ marginRight: '8px' }} />
+            <FaSignOutAlt style={{ marginRight: "8px" }} />
             Logout
           </button>
         </nav>
