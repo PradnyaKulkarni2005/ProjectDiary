@@ -320,47 +320,35 @@ exports.updateReviewAssessment = async (req, res) => {
   }
 };
 
-// // Get activity sheets for a guide
-// exports.getGuideActivitySheets = async (req, res) => {
-//   try {
-//     const { id, role } = req.user || {};
+// Get activity sheets for a guide
+// ✅ Get all activity sheets for a group (month-wise)
+exports.getActivitySheetsByGroup = async (req, res) => {
+  const { groupId } = req.params;
 
-//     if (!id || role !== 'guide') {
-//       return res.status(403).json({ message: 'Not authorized as guide' });
-//     }
-
-//     const { month } = req.query; 
-
-//     let query = `
-//       SELECT 
-//         a.sheetid, a.groupid, a.month, a.task, a.scope_of_work, a.proposed_solution,
-//         a.guide_remarks, a.submission_date,
-//         pg.team_name, pg.project_title
-//       FROM activity_sheets a
-//       JOIN project_groups pg ON pg.id = a.groupid
-//       JOIN guide_preferences gp ON gp.group_id = pg.id
-//       WHERE gp.guide_id = $1 AND gp.status = 'accepted'
-//     `;
-
-//     const params = [id];
-// // If month is provided, filter by it
-//     if (month) {
-//       query += ' AND a.month = $2';
-//       params.push(month);
-//     }
-// // Order by submission date
-
-//     query += ' ORDER BY a.submission_date DESC';
-
-//     const result = await db.query(query, params);
-
-//     if (result.rows.length === 0) {
-//       return res.status(404).json({ message: 'No activity sheets found for your groups' });
-//     }
-
-//     res.json(result.rows);
-//   } catch (error) {
-//     console.error('getGuideActivitySheets error:', error);
-//     res.status(500).json({ message: 'Server error' });
-//   }
-// };
+  try {
+    const query = `
+      SELECT 
+        sheetid,
+        month,
+        task,
+        scope_of_work,
+        proposed_solution,
+        guide_remarks,
+        to_char(submission_date, 'YYYY-MM-DD HH24:MI') as submission_date
+      FROM activity_sheets
+      WHERE groupid = $1
+      ORDER BY 
+        CASE 
+          WHEN month = 'Month1' THEN 1
+          WHEN month = 'Month2' THEN 2
+          WHEN month = 'Month3' THEN 3
+          WHEN month = 'Month4' THEN 4
+        END;
+    `;
+    const result = await db.query(query, [groupId]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching activity sheets:", err.message);
+    res.status(500).json({ message: "Error fetching activity sheets" });
+  }
+};
