@@ -314,3 +314,18 @@ export const updateReviewAssessment = async (id, data, token) => {
   });
   return response.data; // return review row
 };
+
+
+export const getActivitySheets = async (groupId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await API.get(`/guides/groups/${groupId}/activity-sheets`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    // Axios already parses JSON for you
+    return response.data;
+  } catch (error) {
+    console.error("API Error fetching activity sheets:", error);
+    throw new Error("Failed to fetch activity sheets");
+  }
+};

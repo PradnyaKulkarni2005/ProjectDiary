@@ -20,6 +20,7 @@ import StudentDashboard from './Student/StudentDashboard';
 import Registeration from './pages/RegisterPage';
 // import GuideDashboard2 from './Guide/GuideDashboard';
 import GuidePreferences from './Student/GuidePreference'; // Import GuidePreferences component
+import ActivitySheets from './Guide/StudentWork/ActivitySheets';
 
 function App() {
   return (
@@ -45,6 +46,10 @@ function App() {
         <Route path="/register" element={<Registeration />} />
         <Route path="/preferences" element={<GuidePreferences/>} />
         {/* <Route path="/test-supabase" element={<SupabaseTestPage />} /> */}
+        <Route
+          path="/guides/group/:groupId/activity-sheets"
+          element={<ActivitySheets />}
+        />
 
         {/* Add more routes as needed */}
       </Routes>
