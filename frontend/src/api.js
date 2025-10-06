@@ -265,36 +265,52 @@ export const respondToInvite = async (preferenceId, action) => {
 };
 
 
-// --- New: Review Assessment APIs ---
-// Add review assessment
-export const addReviewAssessment = async (assessmentData, token) => {
+// --- Review Assessment APIs ---
+
+// Fetch groups assigned to logged-in guide
+export const getMyGroups = async () => {
   try {
-    const response = await API.post("/guides/reviews", assessmentData, {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await API.get("/guides/my-groups", {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    return response.data; // array of { group_id, team_name, project_title }
+  } catch (error) {
+    console.error("API Error fetching guide groups:", error);
+    throw error.response?.data?.message || "Failed to fetch guide groups";
+  }
+};
+// Student: get reviews of their own group (groupid comes from token)
+// Guide: get all reviews for my group
+export const getMyReviews = async (groupId) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+
+    const response = await API.get(`/guides/reviews/${groupId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
     return response.data;
   } catch (error) {
-    throw error.response?.data?.error || "Failed to add review assessment";
+    console.error("API Error fetching reviews:", error);
+    throw error.response?.data?.message || "Failed to fetch reviews";
   }
 };
 
-
-
-export const getReviewsByTeam = async (teamId) => {
-  try {
-    const response = await API.get(`/guides/reviews/${teamId}`);
-    return response.data.data; // <-- return only the array
-  } catch (error) {
-    throw error.response?.data?.error || "Failed to fetch reviews";
-  }
+export const addReviewAssessment = async (assessmentData, token) => {
+  const response = await API.post("/guides/reviews", assessmentData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data; // return review row
 };
 
-
-export const updateReviewAssessment = async (id, data) => {
-  try {
-    const response = await API.put(`/guides/reviews/${id}`, data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data?.error || "Failed to update review assessment";
-  }
+export const updateReviewAssessment = async (id, data, token) => {
+  const response = await API.put(`/guides/reviews/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data; // return review row
 };

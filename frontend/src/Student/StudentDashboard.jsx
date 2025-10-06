@@ -7,6 +7,7 @@ import CreateGroup from './CreateGroup';
 import Notifications from './Notifications';
 import CoordinatorNotifications from './CoordinatorNotifications';
 import GuidePreferences from './GuidePreference';
+import Evaluation from './ReviewEvaluationStudent';
 import { useNavigate } from 'react-router-dom';
 import { checkUserGroupStatus, checkPendingInvites } from '../api';
 
@@ -46,6 +47,7 @@ export default function StudentDashboard() {
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
+
   const currentUser = { id: userId };
 
   useEffect(() => {
@@ -65,6 +67,7 @@ export default function StudentDashboard() {
         setGroupExists(groupRes.hasGroup);
         setHasPendingInvite(inviteRes.hasPendingInvites);
         setGroupId(groupRes.groupId || null);
+       
         setIsLeader(groupRes.isLeader || false);
         setEligibleForGuidePreferences(groupRes.eligibleForGuidePreferences || false);
         setAllMembersAccepted(groupRes.allMembersAccepted || false); // 🟢 capture from API
@@ -129,7 +132,7 @@ export default function StudentDashboard() {
     }
   };
 
-  // 🟢 Updated renderComponent
+  //  Updated renderComponent
   const renderComponent = () => {
     if (loading) return <div>Loading...</div>;
 
@@ -165,6 +168,7 @@ export default function StudentDashboard() {
               <CoordinatorNotifications userId={currentUser} />
             </>
           );
+       
         default:
           return <div>Select a section from the menu.</div>;
       }
@@ -206,6 +210,8 @@ export default function StudentDashboard() {
             <CoordinatorNotifications userId={userId} />
           </>
         );
+        case 'Evaluation':
+          return <Evaluation groupId={groupId} />;
       default:
         return <div>Select a section from the menu.</div>;
     }
